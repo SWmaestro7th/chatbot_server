@@ -9,11 +9,15 @@ import logging
 import numpy as np
 from sklearn.grid_search import GridSearchCV
 from sklearn.svm import LinearSVC
+import os
 logging.basicConfig(level=logging.DEBUG)
 
 class CategoryClassifier(object):
     def __init__(self, load_at_boot = True):
-        self.PARSED_FILENAME = 'all_types_mecab_with_info.csv'
+        self.dir_path = os.path.dirname(os.path.realpath(__file__))
+        if not self.dir_path.endswith('/'):
+            self.dir_path += '/'
+        self.PARSED_FILENAME = self.dir_path + 'all_types_mecab_with_info.csv'
         self.LOAD_AT_BOOT = load_at_boot
         if self.LOAD_AT_BOOT:
             self.load()
@@ -105,27 +109,27 @@ class CategoryClassifier(object):
         logging.debug('model initialized')
 
     def save(self):
-        logging.debug('CategoryClassifier save started')
-        joblib.dump(self.types,'jisik_types.dat',compress=3)
-        joblib.dump(self.use_types,'jisik_use_types.dat',compress=3)
-        joblib.dump(self.vectorizer,'jisik_vectorizer.dat',compress=3)
-        joblib.dump(self.clf_model,'jisik_classify_linear_svc.model',compress=3)
-        joblib.dump(self.q_list,'jisik_q_list.dat',compress=3)
-        joblib.dump(self.a_list,'jisik_a_list.dat',compress=3)
-        joblib.dump(self.x_list,'jisik_x_list.dat',compress=3)
-        joblib.dump(self.s_list,'jisik_s_list.dat',compress=3)
+        logging.debug(self.dir_path+'CategoryClassifier save started')
+        joblib.dump(self.types,self.dir_path+'jisik_types.dat',compress=3)
+        joblib.dump(self.use_types,self.dir_path+'jisik_use_types.dat',compress=3)
+        joblib.dump(self.vectorizer,self.dir_path+'jisik_vectorizer.dat',compress=3)
+        joblib.dump(self.clf_model,self.dir_path+'jisik_classify_linear_svc.model',compress=3)
+        joblib.dump(self.q_list,self.dir_path+'jisik_q_list.dat',compress=3)
+        joblib.dump(self.a_list,self.dir_path+'jisik_a_list.dat',compress=3)
+        joblib.dump(self.x_list,self.dir_path+'jisik_x_list.dat',compress=3)
+        joblib.dump(self.s_list,self.dir_path+'jisik_s_list.dat',compress=3)
         logging.debug('CategoryClassifier save finished')
 
     def load(self):
         logging.debug('CategoryClassifier load started')
-        self.types = joblib.load('jisik_types.dat')
-        self.use_types = joblib.load('jisik_use_types.dat')
-        self.vectorizer = joblib.load('jisik_vectorizer.dat')
-        self.clf_model = joblib.load('jisik_classify_linear_svc.model')
-        self.q_list = joblib.load('jisik_q_list.dat')
-        self.a_list = joblib.load('jisik_a_list.dat')
-        self.x_list = joblib.load('jisik_x_list.dat')
-        self.s_list = joblib.load('jisik_s_list.dat')
+        self.types = joblib.load(self.dir_path+'jisik_types.dat')
+        self.use_types = joblib.load(self.dir_path+'jisik_use_types.dat')
+        self.vectorizer = joblib.load(self.dir_path+'jisik_vectorizer.dat')
+        self.clf_model = joblib.load(self.dir_path+'jisik_classify_linear_svc.model')
+        self.q_list = joblib.load(self.dir_path+'jisik_q_list.dat')
+        self.a_list = joblib.load(self.dir_path+'jisik_a_list.dat')
+        self.x_list = joblib.load(self.dir_path+'jisik_x_list.dat')
+        self.s_list = joblib.load(self.dir_path+'jisik_s_list.dat')
         logging.debug('CategoryClassifier load finished')
 
     def predict(self, question):
