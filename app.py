@@ -1,11 +1,11 @@
 #!flask/bin/python
 from flask import Flask
 from flask import request
-from classifier import category_classifier as clf
+from clf import cat_clf
 
 
 app = Flask(__name__)
-category_classfier = clf.CategoryClassifier()
+category_classfier = cat_clf.CategoryClassifier()
 
 @app.route('/')
 def index():
