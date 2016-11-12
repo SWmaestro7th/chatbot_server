@@ -17,6 +17,7 @@ class CategoryClassifier(object):
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         if not self.dir_path.endswith('/'):
             self.dir_path += '/'
+        self.dir_path += 'data/'
         self.PARSED_FILENAME = self.dir_path + 'all_types_mecab_with_info.csv'
         self.LOAD_AT_BOOT = load_at_boot
         if self.LOAD_AT_BOOT:
