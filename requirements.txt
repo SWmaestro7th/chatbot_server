@@ -1,5 +1,6 @@
 click==6.6
 Flask==0.11.1
+Flask-SocketIO==2.7.2
 gunicorn==19.6.0
 itsdangerous==0.24
 Jinja2==2.8
@@ -9,8 +10,11 @@ MarkupSafe==0.23
 mecab-python==0.996
 meld3==1.0.2
 numpy==1.11.2
+python-engineio==1.0.3
+python-socketio==1.6.0
 scikit-learn==0.18
 scipy==0.18.1
+six==1.10.0
 sklearn==0.0
 supervisor==3.3.1
 Werkzeug==0.11.11
