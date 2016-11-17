@@ -20,7 +20,7 @@ def parseSentence(sentence):
     result = [x[0] + '\t' + x[1] for x in p]
     return ' '.join(result)
 
-def repl_num(s):
+def replNum(s):
     t = s[:]
     for ch in '0123456789':
         t = t.replace(ch, 'd')

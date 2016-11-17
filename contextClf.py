@@ -13,44 +13,45 @@ class ContextClf(object):
         if useLoad:
             self.load()
         else:
-            self.allCorpus = {}
+            self.vectorizer = None
+            self.categories = None
+            self.clfModel = None
+            self.save()
+
+    def load(self):
+        try:
+            self.vectorizer = joblib.load(ut.rp('contextClf/vectorizer.dat'))
+            self.categories = joblib.load(ut.rp('contextClf/categories.dat'))
+            self.clfModel = joblib.load(ut.rp('contextClf/clf.model'))
+        except:
             self.vectorizer = None
             self.categories = None
             self.clfModel = None
 
-    def load(self):
-        self.allCorpus = joblib.load(ut.rp('contextClf/allCorpus.dat'))
-        self.vectorizer = joblib.load(ut.rp('contextClf/vectorizer.dat'))
-        self.categories = joblib.load(ut.rp('contextClf/categories.dat'))
-        self.clfModel = joblib.load(ut.rp('contextClf/clf.model'))
     def save(self):
-        joblib.dump(self.allCorpus, ut.rp('contextClf/allCorpus.dat'),compress=3)
-        joblib.dump(self.vectorizer, ut.rp('contextClf/vectorizer.dat'), compress=3)
-        joblib.dump(self.categories, ut.rp('contextClf/categories.dat'), compress=3)
-        joblib.dump(self.clfModel, ut.rp('contextClf/clf.model'), compress=3)
-
-    def addCorpus(self, catName, corpus):
-        if catName not in self.allCorpus:
-            self.allCorpus[catName] = []
-        self.allCorpus[catName].extend(corpus)
-        return True
+        if self.vectorizer != None:
+            joblib.dump(self.vectorizer, ut.rp('contextClf/vectorizer.dat'), compress=3)
+        if self.categories != None:
+            joblib.dump(self.categories, ut.rp('contextClf/categories.dat'), compress=3)
+        if self.clfModel != None:
+            joblib.dump(self.clfModel, ut.rp('contextClf/clf.model'), compress=3)
 
     def shflCorpus(self):
         pass
 
-    def build(self):
-        cntPerCat = min([len(x) for x in self.allCorpus.values()])
-        quesList = sum([x[0:cntPerCat] for x in self.allCorpus.values()], [])
-        catList = sum([[x]*cntPerCat for x in self.allCorpus.keys()], [])
+    def build(self, allCorpus):
+        cntPerCat = min(map(len, allCorpus.values()))
+        quesList = sum([x[0:cntPerCat] for x in allCorpus.values()], [])
+        catList = sum([[x]*cntPerCat for x in allCorpus.keys()], [])
         combined = list(zip(quesList, catList))
         random.shuffle(combined)
         quesList[:], catList[:] = zip(*combined)
 
         #print quesList[0]
         #print catList[0]
-        self.categories = self.allCorpus.keys()
+        self.categories = allCorpus.keys()
         self.vectorizer = TfidfVectorizer(ngram_range=(1,2))
-        Xlist = self.vectorizer.fit_transform(quesList)
+        Xlist = self.vectorizer.fit_transform(map(ut.replNum, quesList))
         Ylist = [self.categories.index(x) for x in catList]
         print 'build prepared'
 
@@ -70,27 +71,12 @@ class ContextClf(object):
             return [('Not built yet', 100)]
 
         parsedQues = ut.parseSentence(ques)
-        testX = self.vectorizer.transform([parsedQues])
+        testX = self.vectorizer.transform([ut.replNum(parsedQues)])
         predList = self.clfModel.predict(testX)
         return [(self.categories[predList[0]], 100)]
 
 if __name__ == '__main__':
     cc = ContextClf(useLoad=True)
-    '''
-    defDict = {}
-    defList = joblib.load(ut.rp('contextClf/defList.dat'))
-    for x in defList:
-        if not defDict.has_key(x['cat'].decode('utf-8')):
-            defDict[x['cat'].decode('utf-8')] = []
-        defDict[x['cat'].decode('utf-8')].append(x['ques'].decode('utf-8'))
-
-    for k in defDict.keys():
-        print k
-        print defDict[k][0]
-        cc.addCorpus(k, defDict[k])
-    cc.build()
-    '''
-
     print cc.predict('오늘 날씨')[0][0]
     print cc.predict('오늘 날씨'.decode('utf-8'))[0][0]
     print cc.predict('이효리 학력')[0][0]
