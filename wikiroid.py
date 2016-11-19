@@ -38,7 +38,7 @@ class Handler(object):
     def addCategory(self, cat, quesCorpus, testList, findCode, distMethod):
         self.saveCode(cat, findCode)
         self._addCorpus(cat, quesCorpus)
-        self.paramExtr.build(cat, quesCorpus,testList, distMethod)
+        self.paramExtr.build(cat, quesCorpus, testList, distMethod)
         self.save()
         return True
 
@@ -66,20 +66,13 @@ class Handler(object):
         return self.paramExtr.extrFeat(cat, ques)
 
 if __name__ == '__main__':
-    useLoad = False
+    useLoad = True
     test = Handler(useLoad)
     if not useLoad:
         defDict = {}
         defList = joblib.load(ut.rp('contextClf/defList.dat'))
-        peopleTestDataRaw = joblib.load(ut.rp('paramExtr/cate-people_gold_mecab_with_info.dat'))
-        peopleTestDataRaw.extend(joblib.load(ut.rp('paramExtr/cate-people_gold_mecab_with_info2.dat')))
-        peopleTestData = []
-        for each in peopleTestDataRaw:
-            each['result'].pop('other', None)
-            for k in each['result']:
-                each['result'][k] = ['\t'.join(x.split('tag:')) for x in each['result'][k]]
-            peopleTestData.append(each)
-
+        peopleTestDataRaw = joblib.load(ut.rp('paramExtr/cate-people.dat'))
+        lottoTestDataRaw = joblib.load(ut.rp('paramExtr/cate-lotto.dat'))
         for x in defList:
             if not defDict.has_key(x['cat'].decode('utf-8')):
                 defDict[x['cat'].decode('utf-8')] = []
@@ -94,9 +87,16 @@ if __name__ == '__main__':
                     code.append(line)
                 fp.close()
 
-                testData = peopleTestData
-                test.addCategory(k, defDict[k], testData, ''.join(code), 'W2V')
-            else:
+                test.addCategory(k, defDict[k], peopleTestDataRaw, ''.join(code), 'W2V')
+            elif k == 'Lotto':
+                fp=open(ut.rp('wikiroid/lotto_crawler.py'))
+                code = []
+                for line in fp:
+                    code.append(line)
+                fp.close()
+
+                test.addCategory(k, defDict[k], lottoTestDataRaw, ''.join(code), 'W2V')
+            elif k == 'AAA':
                 code ="\
 def getAnswer(a, b):\n\
     return '1'\n\

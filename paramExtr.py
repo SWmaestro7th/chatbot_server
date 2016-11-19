@@ -58,7 +58,24 @@ class ParamExtr(object):
             #다른 방식
             pass
 
-    def learnFeat(self, cat, testData):
+    def learnFeat(self, cat, rawTestData):
+        testData = []
+        for each in rawTestData:
+            parsedQues = ut.parseSentence(each['question'])
+            splitQues = parsedQues.split(' ')
+            d = {'question' : each['question'], 'result': {}}
+            for k in each['result'].keys():
+                resSt = ' '.join(each['result'][k])
+                parsedResSt = ut.parseSentence(resSt)
+                splitResSt = parsedResSt.split(' ')
+                for word in splitResSt:
+                    if word in splitQues:
+                        if not d['result'].has_key(k):
+                            d['result'][k] = []
+                        d['result'][k].append(word)
+
+            testData.append(d)
+
         if not self.feat.has_key(cat):
             self.feat[cat] = {}
 
@@ -84,7 +101,7 @@ class ParamExtr(object):
                 for k in feats.keys():
                     l = []
                     for w in feats[k]:
-                        replFeat = ut.replNum(w).decode('utf-8')
+                        replFeat = ut.replNum(w)#.decode('utf-8')
                         if replFeat in model.vocab:
                             val = model.similarity(replFeat, replWord)
                             print replFeat + ' : ' + str(val)
