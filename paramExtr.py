@@ -8,6 +8,7 @@ remove_list = ["JKS", "JKC", "JKG", "JKO", "JKB", "JKV", "JKQ", "JC", "JX", "EP"
 
 class ParamExtr(object):
     def __init__(self, useLoad = True):
+        self.useAllW2V = False
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
         if useLoad:
             self.load()
@@ -113,10 +114,10 @@ class ParamExtr(object):
 
     def extrFeat(self, cat, ques):
         if self.distMethods[cat] == 'W2V':
-            if self.indvW2VM.has_key(cat):
-                model = self.indvW2VM[cat]
-            else:
+            if self.useAllW2V:
                 model = self.allW2VM
+            else:
+                model = self.indvW2VM[cat]
             return self.extrFeatW2V(model, self.feat[cat], ques)
         else:
             return "Not Defined"

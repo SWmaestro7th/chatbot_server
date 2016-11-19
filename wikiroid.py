@@ -81,7 +81,7 @@ if __name__ == '__main__':
         print "defList Load complete"
         for k in defDict.keys():
             if k == 'People':
-                fp=open(ut.rp('wikiroid/people_crawler.py'))
+                fp=open(ut.rp('reply/People.py'))
                 code = []
                 for line in fp:
                     code.append(line)
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
                 test.addCategory(k, defDict[k], peopleTestDataRaw, ''.join(code), 'W2V')
             elif k == 'Lotto':
-                fp=open(ut.rp('wikiroid/lotto_crawler.py'))
+                fp=open(ut.rp('reply/Lotto.py'))
                 code = []
                 for line in fp:
                     code.append(line)
@@ -110,4 +110,4 @@ def getAnswer(a, b):\n\
     print "build complete"
     def test_print(a,b):
         print a + " : " + str(b)
-    test.reply("손나은 정보", test_print)
+    test.reply("로또번호", test_print)
