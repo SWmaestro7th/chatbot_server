@@ -71,8 +71,6 @@ if __name__ == '__main__':
     if not useLoad:
         defDict = {}
         defList = joblib.load(ut.rp('contextClf/defList.dat'))
-        peopleTestDataRaw = joblib.load(ut.rp('paramExtr/cate-people.dat'))
-        lottoTestDataRaw = joblib.load(ut.rp('paramExtr/cate-lotto.dat'))
         for x in defList:
             if not defDict.has_key(x['cat'].decode('utf-8')):
                 defDict[x['cat'].decode('utf-8')] = []
@@ -81,6 +79,7 @@ if __name__ == '__main__':
         print "defList Load complete"
         for k in defDict.keys():
             if k == 'People':
+                peopleTestDataRaw = joblib.load(ut.rp('paramExtr/cate-people.dat'))
                 fp=open(ut.rp('reply/People.py'))
                 code = []
                 for line in fp:
@@ -89,6 +88,7 @@ if __name__ == '__main__':
 
                 test.addCategory(k, defDict[k], peopleTestDataRaw, ''.join(code), 'W2V')
             elif k == 'Lotto':
+                lottoTestDataRaw = joblib.load(ut.rp('paramExtr/cate-lotto.dat'))
                 fp=open(ut.rp('reply/Lotto.py'))
                 code = []
                 for line in fp:
@@ -96,6 +96,15 @@ if __name__ == '__main__':
                 fp.close()
 
                 test.addCategory(k, defDict[k], lottoTestDataRaw, ''.join(code), 'W2V')
+            elif k == 'Weather':
+                weatherTestDataRaw = joblib.load(ut.rp('paramExtr/cate-weather.dat'))
+                fp = open(ut.rp('reply/Weather.py'))
+                code = []
+                for line in fp:
+                    code.append(line)
+                fp.close()
+                test.addCategory(k, defDict[k], weatherTestDataRaw, ''.join(code), 'W2V')
+
             elif k == 'AAA':
                 code ="\
 def getAnswer(a, b):\n\
@@ -110,4 +119,5 @@ def getAnswer(a, b):\n\
     print "build complete"
     def test_print(a,b):
         print a + " : " + str(b)
-    test.reply("로또번호", test_print)
+    test.reply("오늘 서울 날씨", test_print)
+    #test.reply("로또번호", test_print)
