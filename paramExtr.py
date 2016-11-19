@@ -105,7 +105,6 @@ class ParamExtr(object):
                         replFeat = ut.replNum(w)#.decode('utf-8')
                         if replFeat in model.vocab:
                             val = model.similarity(replFeat, replWord)
-                            print replFeat + ' : ' + str(val)
                             l.append(val)
                     #l = [model.similarity(x, replWord) for x in feats[k]]
                     d['prob'][k] = sum(l) / len(l)
@@ -125,4 +124,3 @@ class ParamExtr(object):
 
 if __name__ == "__main__":
     test = paramExtr(False)
-    print 'test'
