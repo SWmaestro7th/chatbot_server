@@ -16,6 +16,7 @@ def index():
 @socketio.on('query')
 def handle_message(json):
     print('receive message: ' + str(json))
+    emit('get', json)
     handler.reply(json['question'], emit)
 
 @app.route('/new', methods=['GET']) # MUST CHANGE TO POST
@@ -31,4 +32,5 @@ def add_new_category():
         return 'Failed'
 
 if __name__ =='__main__':
-    app.run(host='0.0.0.0', port=8888)
+    #app.run(host='0.0.0.0', port=8888)
+    socketio.run(app, host='0.0.0.0', port=8888)
