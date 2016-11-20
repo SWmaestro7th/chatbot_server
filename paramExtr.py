@@ -115,7 +115,7 @@ class ParamExtr(object):
         """
         parsedQues = ut.parseSentence(ques)
         if model == None:
-            return "W2VM Not Found"
+            raise Exception("W2VM Not Found")
         res = []
         for word in parsedQues.split(' '):
             d = {'word' : word.split('\t')[0], 'prob' : {}}
@@ -143,7 +143,7 @@ class ParamExtr(object):
                 model = self.indvW2VM[cat]
             return self._extrFeatW2V(model, self.feat[cat], ques)
         else:
-            return "Not Defined"
+            raise Exception("Not Defined")#This Code will be removed if elasticsearch is implemented
 
 
 if __name__ == "__main__":

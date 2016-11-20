@@ -12,7 +12,7 @@ import operator
 
 """
 Context classifier class
-This class provides building classifier model from corpus and predicting using
+This class provides functions to build classifier model from corpus and to predict category using
 classifier model
 """
 class ContextClf(object):
@@ -102,7 +102,7 @@ class ContextClf(object):
         Predict category of the question
         """
         if self.vectorizer == None or self.categories == None or self.clfModel == None:
-            return [('Not built yet', 100)]
+            raise Exception('contextClf Not built yet')
 
         parsedQues = ut.parseSentence(ques)
         testX = self.vectorizer.transform([ut.replNum(parsedQues)])
