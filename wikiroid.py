@@ -35,10 +35,10 @@ class Handler(object):
         self.allCorpus[cat].extend(corpus)
         return True
 
-    def addCategory(self, cat, quesCorpus, testList, findCode, distMethod):
+    def addCategory(self, cat, desc, quesCorpus, reprList, findCode, distMethod):
         self.saveCode(cat, findCode)
         self._addCorpus(cat, quesCorpus)
-        self.paramExtr.build(cat, quesCorpus, testList, distMethod)
+        self.paramExtr.build(cat, quesCorpus, reprList, findCode)
         self.save()
         return True
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
                     code.append(line)
                 fp.close()
 
-                test.addCategory(k, defDict[k], peopleTestDataRaw, ''.join(code), 'W2V')
+                test.addCategory(k, 'Desc: ' + k, defDict[k], peopleTestDataRaw, ''.join(code), {'who':'W', 'detail':'W'})
             elif k == 'Lotto':
                 lottoTestDataRaw = joblib.load(ut.rp('paramExtr/cate-lotto.dat'))
                 fp=open(ut.rp('reply/Lotto.py'))
@@ -95,7 +95,7 @@ if __name__ == '__main__':
                     code.append(line)
                 fp.close()
 
-                test.addCategory(k, defDict[k], lottoTestDataRaw, ''.join(code), 'W2V')
+                test.addCategory(k, 'Desc: ' + k, defDict[k], lottoTestDataRaw, ''.join(code), {'when':'W'})
             elif k == 'Weather':
                 weatherTestDataRaw = joblib.load(ut.rp('paramExtr/cate-weather.dat'))
                 fp = open(ut.rp('reply/Weather.py'))
@@ -103,16 +103,8 @@ if __name__ == '__main__':
                 for line in fp:
                     code.append(line)
                 fp.close()
-                test.addCategory(k, defDict[k], weatherTestDataRaw, ''.join(code), 'W2V')
+                test.addCategory(k, 'Desc: ' + k, defDict[k], weatherTestDataRaw, ''.join(code), {'when':'W', 'where':'W', 'what':'W', 'detail':'W'})
 
-            elif k == 'AAA':
-                code ="\
-def getAnswer(a, b):\n\
-    return '1'\n\
-"
-                testData = []
-                test.addCategory(k, defDict[k], testData, code, 'W2V')
-                break
         print "addCategory Complete"
         test.build()
 

@@ -95,7 +95,6 @@ class WeatherClass:
         st.append("기압 : " + str(self.pres) + " hpa")
         st.append("풍속 : " + str(self.wind_speed) + " m/s")
         st.append("강수 확률 : " + str(self.clouds) + " %")
-        print '\n'.join(st)
         return '\n'.join(st)
         # print(u"lat : " + str(self.lat))
         # print(u"lng : " + str(self.lng))
@@ -409,7 +408,7 @@ def getAnswer(question, params):
         print '현재 날씨'
         wc = WeatherClass()
         wc.getWeatherInfo(where)
-        return wc.showWeatherInfo().decode('utf-8')
+        return wc.showWeatherInfo()
     else:
         print '날씨 예보'
         wf = ForecastWeather()

@@ -8,7 +8,7 @@ remove_list = ["JKS", "JKC", "JKG", "JKO", "JKB", "JKV", "JKQ", "JC", "JX", "EP"
 
 class ParamExtr(object):
     def __init__(self, useLoad = True):
-        self.useAllW2V = False
+        self.useAllW2V = True
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
         if useLoad:
             self.load()
@@ -52,7 +52,7 @@ class ParamExtr(object):
 
     def build(self, cat, corpus, testList, distMethod):
         self.distMethods[cat] = distMethod
-        if distMethod == 'W2V':
+        if 'W' in distMethod.values():
             self.buildIndvW2VM(cat, corpus)
             self.learnFeat(cat, testList)
         else:
