@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*-
 #!flask/bin/python
 from flask import Flask
 from flask import request
@@ -22,11 +23,12 @@ def handle_message(json):
 @app.route('/new', methods=['GET']) # MUST CHANGE TO POST
 def add_new_category():
     name = request.args.get('name')
+    desc = request.args.get('desc')
     corpus = request.args.get('corpus')
-    testList = request.args.get('testList')
+    reprList = request.args.get('featDict')
     findFunc = request.args.get('findFunc')
     distMethod = request.args.get('distMethod')
-    if handler.addCategory(name, corpus, testList, findFunc, distMethod):
+    if handler.addCategory(name, desc, corpus, testList, findFunc, distMethod):
         return 'Succeed'
     else:
         return 'Failed'
