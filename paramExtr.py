@@ -4,11 +4,25 @@ import util as ut
 import gensim, logging
 import Cython
 
+"""
+This Tags are less important than the others.
+But this list is not used yet
+"""
 remove_list = ["JKS", "JKC", "JKG", "JKO", "JKB", "JKV", "JKQ", "JC", "JX", "EP", "EF", "EC", "ETN","ETM", "XPN", "XSN", "XSV", "XSA", "XR", "SF", "SE", "SS", "SP", "SO", "SW"]
 
+"""
+Parameter extractor class
+This class provides function which extracts feature-related words from question
+"""
 class ParamExtr(object):
     def __init__(self, useLoad = True):
+        """
+        Parameter extractor constructor
+        Initialize each variables used in this instance
+        """
+        #useAllW2V defines word2vec model whether indvW2V or allW2V
         self.useAllW2V = False
+        #Show progress of word2vec
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
         if useLoad:
             self.load()
@@ -20,6 +34,9 @@ class ParamExtr(object):
             self.save()
 
     def save(self):
+        """
+        Save some variables used in this instance using joblib.dump
+        """
         if self.indvW2VM != None:
             joblib.dump(self.indvW2VM, ut.rp("paramExtr/indvW2V.model"))
         if self.feat != None:
@@ -30,6 +47,9 @@ class ParamExtr(object):
             joblib.dump(self.distMethods, ut.rp("paramExtr/distMethods.dat"))
 
     def load(self):
+        """
+        Load variables from dumped files
+        """
         self.indvW2VM = joblib.load(ut.rp("paramExtr/indvW2V.model"))
         self.feat = joblib.load(ut.rp("paramExtr/feat.dat"))
         self.distMethods = joblib.load(ut.rp("paramExtr/distMethods.dat"))
@@ -38,29 +58,43 @@ class ParamExtr(object):
         except:
             self.allW2VM = None
 
-    def buildAllW2VM(self, allCorpus):
+    def _buildAllW2VM(self, allCorpus):
+        """
+        Build word2vec model using all corpus
+        NOTE : indvW2V makes each category's model but allW2V is shared among categories, so It doesn't have to rebuild often.
+        """
         sentences = []
         for v in allCorpus.values():
             sentences.extend([ut.replNum(x).split(' ') for x in v])
-        self.allW2VM = gensim.models.Word2Vec(sentences, min_count=1, size=5000, workers=12)
+        self.allW2VM = gensim.models.Word2Vec(sentences, min_count=1, size=500, workers=12)
         self.save()
 
-    def buildIndvW2VM(self, cat, corpus):
+    def _buildIndvW2VM(self, cat, corpus):
+        """
+        Build the category's word2vec model using corpus
+        """
         sentences = [ut.replNum(x).split(' ') for x in corpus]
         self.indvW2VM[cat] = gensim.models.Word2Vec(sentences, min_count=1, size=5000, workers=12)
         self.save()
 
     def build(self, cat, corpus, reprDict, distMethod):
+        """
+        Build parameter extractor model.
+        NOTE: distMethod can be W(word2vec) or E(elasticsearch)
+        """
         self.distMethods[cat] = distMethod
         if 'W' in distMethod.values():
             #Word2Vec
-            self.buildIndvW2VM(cat, corpus)
-            self.learnFeat(cat, reprDict)
+            self._buildIndvW2VM(cat, corpus)
+            self._learnFeat(cat, reprDict)
         if 'E' in distMethod.values():
             #Elastic Search
             pass
 
-    def learnFeat(self, cat, rawReprDict):
+    def _learnFeat(self, cat, rawReprDict):
+        """
+        Learn reprentative words of each feature
+        """
         reprDict = {}
         for k in rawReprDict.keys():
             reprDict[k] = ut.parseSentence(' '.join(rawReprDict[k])).split(' ')
@@ -75,7 +109,10 @@ class ParamExtr(object):
 
         self.save()
 
-    def extrFeatW2V(self, model, feats, ques):
+    def _extrFeatW2V(self, model, feats, ques):
+        """
+        extract parameters using word2vec model
+        """
         parsedQues = ut.parseSentence(ques)
         if model == None:
             return "W2VM Not Found"
@@ -96,12 +133,15 @@ class ParamExtr(object):
         return res
 
     def extrFeat(self, cat, ques):
+        """
+        Extract
+        """
         if 'W' in self.distMethods[cat]:
             if self.useAllW2V:
                 model = self.allW2VM
             else:
                 model = self.indvW2VM[cat]
-            return self.extrFeatW2V(model, self.feat[cat], ques)
+            return self._extrFeatW2V(model, self.feat[cat], ques)
         else:
             return "Not Defined"
 
