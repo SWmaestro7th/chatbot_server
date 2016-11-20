@@ -106,7 +106,13 @@ class ContextClf(object):
 
         parsedQues = ut.parseSentence(ques)
         testX = self.vectorizer.transform([ut.replNum(parsedQues)])
+        """
+        Predict category and probability
+        """
         predList = self.clfModel.predict_proba(testX)
+        """
+        Make List of tuples and sort to return
+        """
         res = [(self.categories[x], predList[0][x]) for x in range(len(self.categories))]
         sortedRes = sorted(res, key=operator.itemgetter(1), reverse=True)
         return sortedRes
