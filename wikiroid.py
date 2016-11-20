@@ -111,5 +111,5 @@ if __name__ == '__main__':
     print "build complete"
     def test_print(a,b):
         print a + " : " + str(b)
-    test.reply("오늘 서울 날씨", test_print)
+    test.reply("내일 서울 비오나요", test_print)
     #test.reply("로또번호", test_print)

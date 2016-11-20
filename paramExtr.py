@@ -8,7 +8,7 @@ remove_list = ["JKS", "JKC", "JKG", "JKO", "JKB", "JKV", "JKQ", "JC", "JX", "EP"
 
 class ParamExtr(object):
     def __init__(self, useLoad = True):
-        self.useAllW2V = True
+        self.useAllW2V = False
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
         if useLoad:
             self.load()
