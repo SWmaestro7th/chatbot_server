@@ -6,8 +6,16 @@ import util as ut
 import sys
 sys.path.append(ut.rp('reply/'))
 
+"""
+Main handler to run wikiroid
+This class provides mapping between flask app and each component
+"""
 class Handler(object):
     def __init__(self, useLoad=True):
+        """
+        Handler constructor
+        Initialize each variables used in this instance
+        """
         if useLoad:
             self.load()
         else:
@@ -17,25 +25,40 @@ class Handler(object):
             self.save()
 
     def save(self):
+        """
+        Save some variables used in this instance using joblib.dump
+        """
         joblib.dump(self.allCorpus, ut.rp('wikiroid/allCorpus.dat'),compress=3)
 
     def saveCode(self, cat, code):
+        """
+        Save reply code in reply directory
+        """
         fp = open(ut.rp('reply/' + cat + '.py'), 'w')
         fp.write(code)
         fp.close()
 
     def load(self):
+        """
+        Load variables from dumped files
+        """
         self.allCorpus = joblib.load(ut.rp('wikiroid/allCorpus.dat'))
         self.contextClf = contextClf.ContextClf(useLoad=True)
         self.paramExtr = paramExtr.ParamExtr(useLoad=True)
 
     def _addCorpus(self, cat, corpus):
+        """
+        add new category's corpus in allcorpus
+        """
         if cat not in self.allCorpus:
             self.allCorpus[cat] = []
         self.allCorpus[cat].extend(corpus)
         return True
 
     def addCategory(self, cat, desc, quesCorpus, featDict, findCode, distMethod):
+        """
+        Add new category
+        """
         self.saveCode(cat, findCode)
         self._addCorpus(cat, quesCorpus)
         self.paramExtr.build(cat, quesCorpus, featDict, findCode)
@@ -43,29 +66,50 @@ class Handler(object):
         return True
 
     def build(self):
+        """
+        Build context classifier model
+        """
         self.contextClf.build(self.allCorpus)
 
     def reply(self, ques, emitFunc):
+        """
+        Reply to the question
+        """
+        #Classify the category of the question
         predRslt = self._predContext(ques)
+        #Emit context classifier's reseult
         emitFunc('classifier', predRslt)
         cat = predRslt[0][0]
+        #Extract parameters(or features) in question
         params = self._extrParam(ques, cat)
 
+        #Emit parameter Extractor's result
         emitFunc('extractor', params)
+        #Import answer-making code
         exec('import ' + cat)
         exec('reload(' + cat + ')')
         getAnswer = eval(cat + '.getAnswer')
+        #Make an answer and emit it
         emitFunc('reply', getAnswer(ques, params))
 
     def _predContext(self, ques):
+        """
+        Predict category of the question
+        """
         #return [('Weather', 10.1), ('Lotto', 5.5), ('People', 1.01)]
         return self.contextClf.predict(ques)
 
     def _extrParam(self, ques, cat):
+        """
+        Extract parameters of the question
+        """
         #return {'who' : ['테스트'], 'detail' : ['테스트']}
         return self.paramExtr.extrFeat(cat, ques)
 
 if __name__ == '__main__':
+    """
+    Just Test Code
+    """
     useLoad = True
     test = Handler(useLoad)
     if not useLoad:

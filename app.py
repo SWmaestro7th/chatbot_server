@@ -6,20 +6,32 @@ from flask_socketio import SocketIO
 from flask_socketio import send, emit
 import wikiroid
 
-handler = wikiroid.Handler()
+"""
+Initialize Flask, socketio, and wikiroid instance
+"""
 app = Flask(__name__)
 socketio = SocketIO(app)
+handler = wikiroid.Handler()
 
+"""
+Root address routes to simple message"
+"""
 @app.route('/')
 def index():
     return "Server running"
 
+"""
+Receive query message from socketio and reply answer
+"""
 @socketio.on('query')
 def handle_message(json):
     print('receive message: ' + str(json))
     emit('get', json)
     handler.reply(json['question'], emit)
 
+"""
+Add new category in wikiroid
+"""
 @app.route('/new', methods=['GET']) # MUST CHANGE TO POST
 def add_new_category():
     name = request.args.get('name')
