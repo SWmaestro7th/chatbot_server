@@ -35,10 +35,10 @@ class Handler(object):
         self.allCorpus[cat].extend(corpus)
         return True
 
-    def addCategory(self, cat, desc, quesCorpus, reprList, findCode, distMethod):
+    def addCategory(self, cat, desc, quesCorpus, featDict, findCode, distMethod):
         self.saveCode(cat, findCode)
         self._addCorpus(cat, quesCorpus)
-        self.paramExtr.build(cat, quesCorpus, reprList, findCode)
+        self.paramExtr.build(cat, quesCorpus, featDict, findCode)
         self.save()
         return True
 
