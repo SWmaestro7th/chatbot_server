@@ -5,11 +5,22 @@ from sklearn.externals import joblib
 import util as ut
 from sklearn.grid_search import GridSearchCV
 from sklearn.svm import LinearSVC
+from sklearn.calibration import CalibratedClassifierCV
 import numpy as np
 import random
+import operator
 
+"""
+Context classifier class
+This class provides building classifier model from corpus and predicting using
+classifier model
+"""
 class ContextClf(object):
     def __init__(self, useLoad= True):
+        """
+        Context classifier constructor
+        Initialize each variables used in this instance
+        """
         if useLoad:
             self.load()
         else:
@@ -19,6 +30,9 @@ class ContextClf(object):
             self.save()
 
     def load(self):
+        """
+        Load variables from dumped files
+        """
         try:
             self.vectorizer = joblib.load(ut.rp('contextClf/vectorizer.dat'))
             self.categories = joblib.load(ut.rp('contextClf/categories.dat'))
@@ -29,6 +43,9 @@ class ContextClf(object):
             self.clfModel = None
 
     def save(self):
+        """
+        Save some variables used in this instance using joblib.dump
+        """
         if self.vectorizer != None:
             joblib.dump(self.vectorizer, ut.rp('contextClf/vectorizer.dat'), compress=3)
         if self.categories != None:
@@ -37,24 +54,34 @@ class ContextClf(object):
             joblib.dump(self.clfModel, ut.rp('contextClf/clf.model'), compress=3)
 
     def shflCorpus(self):
+        """
+        Shuffle Corpus to make better classifier model
+        NOTE : This function is not implemented yet
+        """
         pass
 
     def build(self, allCorpus):
+        """
+        Build classifier model from corpus
+        """
+        #Make question and category list to use at sklearn
+        #NOTE: each category's corpus has different amount of corpus, so we equalize each category's corpus
         cntPerCat = min(map(len, allCorpus.values()))
         quesList = sum([x[0:cntPerCat] for x in allCorpus.values()], [])
         catList = sum([[x]*cntPerCat for x in allCorpus.keys()], [])
+        #shuffle question and category list to build better model
         combined = list(zip(quesList, catList))
         random.shuffle(combined)
         quesList[:], catList[:] = zip(*combined)
 
-        #print quesList[0]
-        #print catList[0]
         self.categories = allCorpus.keys()
+        #We use TfidVectorizer and bigram
         self.vectorizer = TfidfVectorizer(ngram_range=(1,2))
         Xlist = self.vectorizer.fit_transform(map(ut.replNum, quesList))
         Ylist = [self.categories.index(x) for x in catList]
         print 'build prepared'
 
+        #Search best model
         svc_param = {'C':np.logspace(-2, 0, 20)}
         gs_svc = GridSearchCV(LinearSVC(),svc_param,cv=5,n_jobs=12)
         gs_svc.fit(Xlist, Ylist)
@@ -62,20 +89,32 @@ class ContextClf(object):
         #logging.debug('score : ' + str(gs_svc.best_score_))
         print gs_svc.best_params_
         print 'score : ' + str(gs_svc.best_score_)
-        self.clfModel = LinearSVC(C=gs_svc.best_params_['C'])
+        svm = LinearSVC(C=gs_svc.best_params_['C'])
+        self.clfModel = CalibratedClassifierCV(base_estimator=svm)
+
+        #Build model
         self.clfModel.fit(Xlist, Ylist)
+        #save model
         self.save()
 
     def predict(self, ques):
+        """
+        Predict category of the question
+        """
         if self.vectorizer == None or self.categories == None or self.clfModel == None:
             return [('Not built yet', 100)]
 
         parsedQues = ut.parseSentence(ques)
         testX = self.vectorizer.transform([ut.replNum(parsedQues)])
-        predList = self.clfModel.predict(testX)
-        return [(self.categories[predList[0]], 100)]
+        predList = self.clfModel.predict_proba(testX)
+        res = [(self.categories[x], predList[0][x]) for x in range(len(self.categories))]
+        sortedRes = sorted(res, key=operator.itemgetter(1), reverse=True)
+        return sortedRes
 
 if __name__ == '__main__':
+    """
+    This part is just test code
+    """
     cc = ContextClf(useLoad=True)
     print cc.predict('오늘 날씨')[0][0]
     print cc.predict('오늘 날씨'.decode('utf-8'))[0][0]

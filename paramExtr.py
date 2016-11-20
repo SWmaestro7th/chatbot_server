@@ -62,20 +62,17 @@ class ParamExtr(object):
 
     def learnFeat(self, cat, rawReprDict):
         reprDict = {}
-        for k in rawReprList.keys():
+        for k in rawReprDict.keys():
             reprDict[k] = ut.parseSentence(' '.join(rawReprDict[k])).split(' ')
 
         if not self.feat.has_key(cat):
             self.feat[cat] = {}
 
-        newFeats = reprDict.keys()
-        for each in newFeats:
+        for each in reprDict.keys():
             if not self.feat[cat].has_key(each):
                 self.feat[cat][each] = []
+            self.feat[cat][each].extend(reprDict[each])
 
-        for each in testData:
-            for k in each['result'].keys():
-                self.feat[cat][k].extend(each['result'][k])
         self.save()
 
     def extrFeatW2V(self, model, feats, ques):

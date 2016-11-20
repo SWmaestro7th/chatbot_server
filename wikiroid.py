@@ -61,7 +61,7 @@ class Handler(object):
         """
         self.saveCode(cat, findCode)
         self._addCorpus(cat, quesCorpus)
-        self.paramExtr.build(cat, quesCorpus, featDict, findCode)
+        self.paramExtr.build(cat, quesCorpus, featDict, distMethod)
         self.save()
         return True
 
@@ -108,9 +108,9 @@ class Handler(object):
 
 if __name__ == '__main__':
     """
-    Just Test Code
+    This part is just Test Code
     """
-    useLoad = True
+    useLoad = False
     test = Handler(useLoad)
     if not useLoad:
         defDict = {}
@@ -124,30 +124,47 @@ if __name__ == '__main__':
         for k in defDict.keys():
             if k == 'People':
                 peopleTestDataRaw = joblib.load(ut.rp('paramExtr/cate-people.dat'))
+
+                peopleReprDict = {y : [] for y in list(set(sum([x['result'].keys() for x in peopleTestDataRaw], [])))}
+                for each in peopleTestDataRaw:
+                    for w in each['result']:
+                        peopleReprDict[w].extend(each['result'][w])
+
                 fp=open(ut.rp('reply/People.py'))
                 code = []
                 for line in fp:
                     code.append(line)
                 fp.close()
-
-                test.addCategory(k, 'Desc: ' + k, defDict[k], peopleTestDataRaw, ''.join(code), {'who':'W', 'detail':'W'})
+                test.addCategory(k, 'Desc: ' + k, defDict[k], peopleReprDict, ''.join(code), {'who':'W', 'detail':'W'})
             elif k == 'Lotto':
                 lottoTestDataRaw = joblib.load(ut.rp('paramExtr/cate-lotto.dat'))
+
+                lottoReprDict = {y : [] for y in list(set(sum([x['result'].keys() for x in lottoTestDataRaw], [])))}
+                for each in lottoTestDataRaw:
+                    for w in each['result']:
+                        lottoReprDict[w].extend(each['result'][w])
+
                 fp=open(ut.rp('reply/Lotto.py'))
                 code = []
                 for line in fp:
                     code.append(line)
                 fp.close()
 
-                test.addCategory(k, 'Desc: ' + k, defDict[k], lottoTestDataRaw, ''.join(code), {'when':'W'})
+                test.addCategory(k, 'Desc: ' + k, defDict[k], lottoReprDict, ''.join(code), {'when':'W'})
             elif k == 'Weather':
                 weatherTestDataRaw = joblib.load(ut.rp('paramExtr/cate-weather.dat'))
+
+                weatherReprDict = {y : [] for y in list(set(sum([x['result'].keys() for x in weatherTestDataRaw], [])))}
+                for each in weatherTestDataRaw:
+                    for w in each['result']:
+                        weatherReprDict[w].extend(each['result'][w])
+
                 fp = open(ut.rp('reply/Weather.py'))
                 code = []
                 for line in fp:
                     code.append(line)
                 fp.close()
-                test.addCategory(k, 'Desc: ' + k, defDict[k], weatherTestDataRaw, ''.join(code), {'when':'W', 'where':'W', 'what':'W', 'detail':'W'})
+                test.addCategory(k, 'Desc: ' + k, defDict[k], weatherReprDict, ''.join(code), {'when':'W', 'where':'W', 'what':'W', 'detail':'W'})
 
         print "addCategory Complete"
         test.build()
@@ -155,5 +172,5 @@ if __name__ == '__main__':
     print "build complete"
     def test_print(a,b):
         print a + " : " + str(b)
-    test.reply("내일 서울 비오나요", test_print)
-    #test.reply("로또번호", test_print)
+    #test.reply("내일 서울 비오나요", test_print)
+    test.reply("저번주 로또번호", test_print)
