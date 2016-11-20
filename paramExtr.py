@@ -50,37 +50,25 @@ class ParamExtr(object):
         self.indvW2VM[cat] = gensim.models.Word2Vec(sentences, min_count=1, size=5000, workers=12)
         self.save()
 
-    def build(self, cat, corpus, testList, distMethod):
+    def build(self, cat, corpus, reprDict, distMethod):
         self.distMethods[cat] = distMethod
         if 'W' in distMethod.values():
+            #Word2Vec
             self.buildIndvW2VM(cat, corpus)
-            self.learnFeat(cat, testList)
-        else:
-            #다른 방식
+            self.learnFeat(cat, reprDict)
+        if 'E' in distMethod.values():
+            #Elastic Search
             pass
 
-    def learnFeat(self, cat, rawTestData):
-        testData = []
-        for each in rawTestData:
-            parsedQues = ut.parseSentence(each['question'])
-            splitQues = parsedQues.split(' ')
-            d = {'question' : each['question'], 'result': {}}
-            for k in each['result'].keys():
-                resSt = ' '.join(each['result'][k])
-                parsedResSt = ut.parseSentence(resSt)
-                splitResSt = parsedResSt.split(' ')
-                for word in splitResSt:
-                    if word in splitQues:
-                        if not d['result'].has_key(k):
-                            d['result'][k] = []
-                        d['result'][k].append(word)
-
-            testData.append(d)
+    def learnFeat(self, cat, rawReprDict):
+        reprDict = {}
+        for k in rawReprList.keys():
+            reprDict[k] = ut.parseSentence(' '.join(rawReprDict[k])).split(' ')
 
         if not self.feat.has_key(cat):
             self.feat[cat] = {}
 
-        newFeats = list(set(sum([x['result'].keys() for x in testData], [])))
+        newFeats = reprDict.keys()
         for each in newFeats:
             if not self.feat[cat].has_key(each):
                 self.feat[cat][each] = []
@@ -106,13 +94,12 @@ class ParamExtr(object):
                         if replFeat in model.vocab:
                             val = model.similarity(replFeat, replWord)
                             l.append(val)
-                    #l = [model.similarity(x, replWord) for x in feats[k]]
                     d['prob'][k] = sum(l) / len(l)
                 res.append(d)
         return res
 
     def extrFeat(self, cat, ques):
-        if self.distMethods[cat] == 'W2V':
+        if 'W' in self.distMethods[cat]:
             if self.useAllW2V:
                 model = self.allW2VM
             else:
