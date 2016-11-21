@@ -107,7 +107,9 @@ class ParamExtr(object):
             }
             actionList.append(action)
 
+        raw_input('--------------------')
         for success, info in helpers.parallel_bulk(es_client, actionList,chunk_size=200,thread_count=12):
+            raw_input('--------------------')
             print success, info
 
     def build(self, cat, corpus, reprDict, distMethod):

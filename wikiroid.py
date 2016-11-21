@@ -128,9 +128,19 @@ if __name__ == '__main__':
         defDict = {}
         defList = joblib.load(ut.rp('contextClf/defList.dat'))
         for x in defList:
-            if not defDict.has_key(x['cat'].decode('utf-8')):
-                defDict[x['cat'].decode('utf-8')] = []
-            defDict[x['cat'].decode('utf-8')].append(x['ques'].decode('utf-8'))
+            if x['cat'] is unicode:
+                cat = x['cat'].encode('utf-8')
+            else:
+                cat = x['cat']
+
+            if not defDict.has_key(cat):
+                defDict[cat] = []
+
+            if x['ques'] is unicode:
+                ques = x['ques'].encode('utf-8')
+            else:
+                ques = x['ques']
+            defDict[cat].append(ques)
 
         print "defList Load complete"
         for k in defDict.keys():
@@ -159,10 +169,29 @@ if __name__ == '__main__':
                 fp=open(ut.rp('reply/Lotto.py'))
                 code = []
                 for line in fp:
-                    code.append(line)
+                    code.append(line.rstrip('\n'))
                 fp.close()
+                st = []
+                st.append("[")
+                for each in defDict[k]:
+                    st.append("'" + each + "',")
+                st.append("]")
+                print ''.join(st)
+                raw_input('---------------------------')
 
-                test.addCategory(k, 'Desc: ' + k, defDict[k], lottoReprDict, ''.join(code), {'when':'w'})
+                st = []
+                st.append("[")
+                for each in lottoReprDict['when']:
+                    st.append("'" + each + "',")
+                st.append("]")
+                print ''.join(st)
+
+                raw_input('---------------------------')
+
+                print '"' + '\\n'.join(code) + '"'
+                raw_input('---------------------------')
+
+                #test.addCategory(k, 'Desc: ' + k, defDict[k], lottoReprDict, ''.join(code), {'when':'w'})
             elif k == 'Weather':
                 weatherTestDataRaw = joblib.load(ut.rp('paramExtr/cate-weather.dat'))
 
