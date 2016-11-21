@@ -37,11 +37,11 @@ class Handler(object):
         Save reply code in reply directory
         """
         fp = open(ut.rp('reply/' + cat + '.py'), 'w')
-        if type(rawCode) is unicode:
-            code = rawCode.encode('utf-8')
+        if type(rawCode) is not unicode:
+            code = rawCode.decode('utf-8')
         else:
             code = rawCode
-        fp.write(code)
+        fp.write(code.encode('utf-8'))
         fp.close()
 
     def load(self):
@@ -122,22 +122,22 @@ if __name__ == '__main__':
     """
     This part is just Test Code
     """
-    useLoad = False
+    useLoad = True
     test = Handler(useLoad)
     if not useLoad:
         defDict = {}
         defList = joblib.load(ut.rp('contextClf/defList.dat'))
         for x in defList:
-            if x['cat'] is unicode:
-                cat = x['cat'].encode('utf-8')
+            if x['cat'] is not unicode:
+                cat = x['cat'].decode('utf-8')
             else:
                 cat = x['cat']
 
             if not defDict.has_key(cat):
                 defDict[cat] = []
 
-            if x['ques'] is unicode:
-                ques = x['ques'].encode('utf-8')
+            if x['ques'] is not unicode:
+                ques = x['ques'].decode('utf-8')
             else:
                 ques = x['ques']
             defDict[cat].append(ques)
@@ -169,29 +169,10 @@ if __name__ == '__main__':
                 fp=open(ut.rp('reply/Lotto.py'))
                 code = []
                 for line in fp:
-                    code.append(line.rstrip('\n'))
+                    code.append(line)
                 fp.close()
-                st = []
-                st.append("[")
-                for each in defDict[k]:
-                    st.append("'" + each + "',")
-                st.append("]")
-                print ''.join(st)
-                raw_input('---------------------------')
 
-                st = []
-                st.append("[")
-                for each in lottoReprDict['when']:
-                    st.append("'" + each + "',")
-                st.append("]")
-                print ''.join(st)
-
-                raw_input('---------------------------')
-
-                print '"' + '\\n'.join(code) + '"'
-                raw_input('---------------------------')
-
-                #test.addCategory(k, 'Desc: ' + k, defDict[k], lottoReprDict, ''.join(code), {'when':'w'})
+                test.addCategory(k, 'Desc: ' + k, defDict[k], lottoReprDict, ''.join(code), {'when':'w'})
             elif k == 'Weather':
                 weatherTestDataRaw = joblib.load(ut.rp('paramExtr/cate-weather.dat'))
 
@@ -212,8 +193,8 @@ if __name__ == '__main__':
 
     print "build complete"
     def test_print(a,b):
-        print a + " : " + str(b)
+        print a + " : " + unicode(b)
     #test.reply("내일 서울 비오나요", test_print)
-    test.reply("한가인 프로필", test_print)
+    test.reply(u"서석고등학교", test_print)
     #test.reply("어제 로또 번호", test_print)
     #test.reply("Test", test_print)

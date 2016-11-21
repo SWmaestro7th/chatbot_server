@@ -77,7 +77,7 @@ class ContextClf(object):
         self.categories = allCorpus.keys()
         #We use TfidVectorizer and bigram
         self.vectorizer = TfidfVectorizer(ngram_range=(1,2))
-        Xlist = self.vectorizer.fit_transform(map(ut.replNum, quesList))
+        Xlist = self.vectorizer.fit_transform([ut.replNum(ut.parseSentence(x)) for x in quesList])
         Ylist = [self.categories.index(x) for x in catList]
         print 'build prepared'
 
@@ -101,6 +101,8 @@ class ContextClf(object):
         """
         Predict category of the question
         """
+        if type(ques) is not unicode:
+            ques = ques.decode('utf-8')
         if self.vectorizer == None or self.categories == None or self.clfModel == None:
             raise Exception('contextClf Not built yet')
 

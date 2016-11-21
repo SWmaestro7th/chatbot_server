@@ -213,11 +213,17 @@ def getAnswer(question, params):
         print '현재 날씨'
         wc = WeatherClass()
         wc.getWeatherInfo(where)
-        return wc.showWeatherInfo()
+        tmp = wc.showWeatherInfo()
+        if type(tmp) is not unicode:
+            tmp = tmp.decode('utf-8')
+        return tmp
     else:
         print '날씨 예보'
         wf = ForecastWeather()
-        return wf.getWeatherInfo(where, get_date_diff(question))
+        tmp = wf.getWeatherInfo(where, get_date_diff(question))
+        if type(tmp) is not unicode:
+            tmp = tmp.decode('utf-8')
+        return tmp
 
 
 def is_now(when):

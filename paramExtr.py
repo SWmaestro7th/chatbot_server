@@ -30,7 +30,7 @@ class ParamExtr(object):
         Initialize each variables used in this instance
         """
         #useAllW2V defines word2vec model whether indvW2V or allW2V
-        self.useAllW2V = False
+        self.useAllW2V = True
         self.THR = 0.3
         #Show progress of word2vec
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
@@ -63,15 +63,15 @@ class ParamExtr(object):
         self.indvW2VM = joblib.load(ut.rp("paramExtr/indvW2V.model"))
         self.reprDict = joblib.load(ut.rp("paramExtr/reprDict.dat"))
         self.distMethods = joblib.load(ut.rp("paramExtr/distMethods.dat"))
+        try:
+            self.allW2VM = joblib.load(ut.rp("paramExtr/allW2V.model"))
+        except:
+            self.allW2VM = None
         for cat in self.distMethods:
             for k in self.distMethods[cat]:
                 if self.distMethods[cat][k] == 'e':
                     self._buildES(cat, k, self.reprDict[cat][k])
 
-        try:
-            self.allW2VM = joblib.load(ut.rp("paramExtr/allW2V.model"))
-        except:
-            self.allW2VM = None
 
     def _buildAllW2VM(self, allCorpus):
         """
@@ -81,7 +81,7 @@ class ParamExtr(object):
         sentences = []
         for v in allCorpus.values():
             sentences.extend([ut.replNum(ut.parseSentence(x)).split(' ') for x in v])
-        self.allW2VM = gensim.models.Word2Vec(sentences, min_count=1, size=500, workers=12)
+        self.allW2VM = gensim.models.Word2Vec(sentences, min_count=1, size=100, workers=12)
         self.save()
 
     def _buildIndvW2VM(self, cat, corpus):
@@ -89,17 +89,21 @@ class ParamExtr(object):
         Build the category's word2vec model using corpus
         """
         sentences = [ut.replNum(ut.parseSentence(x)).split(' ') for x in corpus]
-        self.indvW2VM[cat] = gensim.models.Word2Vec(sentences, min_count=1, size=1000, workers=12)
+        self.indvW2VM[cat] = gensim.models.Word2Vec(sentences, min_count=1, size=100, workers=12)
         self.save()
 
     def _buildES(self, cat, feat, reprList):
         """
         Build the category's elasticsearch model using corpus
         """
+        if not self.reprDict.has_key(cat):
+            self.reprDict[cat] = {}
+        self.reprDict[cat][feat] = reprList
         lowerCat = cat.lower()
         os.system(ut.rp('elastic/init_entity_search.sh ') + lowerCat + ' ' + feat)
         actionList = []
-        for each in reprList:
+        uniqReprList = list(set(reprList))
+        for each in uniqReprList:
             action = {
                 "_index":lowerCat,
                 "_type":feat,
@@ -107,10 +111,10 @@ class ParamExtr(object):
             }
             actionList.append(action)
 
-        raw_input('--------------------')
         for success, info in helpers.parallel_bulk(es_client, actionList,chunk_size=200,thread_count=12):
-            raw_input('--------------------')
             print success, info
+
+        self.save()
 
     def build(self, cat, corpus, reprDict, distMethod):
         """
@@ -118,15 +122,15 @@ class ParamExtr(object):
         NOTE: distMethod can be W(word2vec) or E(elasticsearch)
         """
         self.distMethods[cat] = distMethod
-        if 'w' in distMethod.values():
+        if not self.useAllW2V and 'w' in distMethod.values():
             #Word2Vec
             self._buildIndvW2VM(cat, corpus)
         for k in distMethod:
-            self._learnParam(cat, k, reprDict[k])
+            if distMethod[k] == 'w':
+                self._learnParam(cat, k, reprDict[k])
             if distMethod[k] == 'e':
-                self._buildES(cat, k, reprDict[k])
                 #Elastic Search
-                pass
+                self._buildES(cat, k, reprDict[k])
 
     def _learnParam(self, cat, feat, rawReprList):
         """
@@ -180,7 +184,7 @@ class ParamExtr(object):
                     {'multi_match' : {
                                 "type": "best_fields",
                                 "fields": ['','name'],
-                                "query": query.decode('utf-8'),
+                                "query": query,
                                 "operator": 'or',
                         }
                     }
@@ -195,16 +199,17 @@ class ParamExtr(object):
         """
         Extract Parameters from question
         """
-        if self.useAllW2V:
-            model = self.allW2VM
-        else:
-            model = self.indvW2VM[cat]
+        if 'w' in self.distMethods[cat].values():
+            if self.useAllW2V:
+                model = self.allW2VM
+            else:
+                model = self.indvW2VM[cat]
         res = {}
         for k in self.distMethods[cat]:
             if self.distMethods[cat][k] == 'w':
                 res[k] = self._extrParamW2V(model, self.reprDict[cat][k], ques)
             if self.distMethods[cat][k] == 'e':
-                res[k] = self.extrParamES(cat, k, ques)
+                res[k] = self._extrParamES(cat, k, ques)
 
         resRmTag = {}
         for k in res.keys():

@@ -71,5 +71,8 @@ def getAnswer(full_text, params):
                 d = requests.get(u + str(r-1)).text
                 li.append(json.loads(d))
             except:
-                return '좀 더 정확히 입력해주세요'
-    return '\n'.join([make_words(x) for x in li])
+                return u'좀 더 정확히 입력해주세요'
+    tmp = '\n'.join([make_words(x) for x in li])
+    if tmp is not unicode:
+        tmp = tmp.decode('utf-8')
+    return tmp

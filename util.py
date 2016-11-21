@@ -29,7 +29,7 @@ def parseSentence(sentence):
         t = sentence
     p = mecab.pos(t)
     result = [x[0] + '\t' + x[1] for x in p]
-    return ' '.join(result).encode('utf-8')
+    return ' '.join(result)
 
 def replNum(s):
     """
