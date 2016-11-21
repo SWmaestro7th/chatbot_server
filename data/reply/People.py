@@ -90,8 +90,6 @@ class PeopleCrawler(object):
 
 
     def getAnswer(self, full_text, params):
-        print params
-        print full_text
         parsed_dict = {}
         for k in params:
             parsed_dict[k] = [x[0] for x in params[k] if x[1] > 0.2]
@@ -109,13 +107,16 @@ class PeopleCrawler(object):
         try:
             tot_res = json.loads(d.split('"result":')[1].split(' } } ,')[0])
             if tot_res['total'] <= 0:
-                return '해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
+                return u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
             res = tot_res['itemList'][0]
         except:
-            return '해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
+            return u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
 
         if any([x.decode('utf-8') in detail_str for x in ['프로필', '정보']]):
-            return self.make_all_sen(res)
+            tmp = self.make_all_sen(res)
+            if type(tmp) is not unicode:
+                tmp = tmp.decode('utf-8')
+            return tmp.decode('utf-8')
 
         res_list = []
         if any([x.decode('utf-8') in detail_str for x in ['생일', '생년', '생년월일', '출생', '몇 년 생', '몇년생']]):
@@ -152,8 +153,14 @@ class PeopleCrawler(object):
             res_list.append(self.make_weight_sen(res))
 
         if len(res_list) == 0:
-            return self.make_all_sen(res)
-        return '\n'.join(res_list)
+            tmp = self.make_all_sen(res)
+            if type(tmp) is not unicode:
+                tmp = tmp.decode('utf-8')
+            return tmp
+        tmp = '\n'.join(res_list)
+        if type(tmp) is not unicode:
+            tmp = tmp.decode('utf-8')
+        return tmp
 
 def getAnswer(full_text, params):
     cr = PeopleCrawler()
