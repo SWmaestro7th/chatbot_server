@@ -106,7 +106,19 @@ Return Category informations
 """
 @app.route('/list', methods=['GET']) # MUST CHANGE TO POST
 def getCategoryList():
-    return json.dumps(handler.getCategoryList())
+    tmp = handler.getCategoryList()
+    """
+    for idx in range(len(tmp)):
+        if type(tmp[idx]['name']) is unicode:
+            tmp[idx]['name'] = tmp[idx]['name'].encode('utf-8')
+        if type(tmp[idx]['desc']) is unicode:
+            tmp[idx]['desc'] = tmp[idx]['desc'].encode('utf-8')
+        if type(tmp[idx]['corpus'][0]) is unicode:
+            tmp[idx]['corpus'][0] = tmp[idx]['corpus'][0].encode('utf-8')
+        if type(tmp[idx]['corpus'][1]) is unicode:
+            tmp[idx]['corpus'][1] = tmp[idx]['corpus'][1].encode('utf-8')
+    """
+    return str(tmp)
 
 if __name__ =='__main__':
     socketio.run(app, host='0.0.0.0', port=10101)
