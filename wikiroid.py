@@ -20,6 +20,7 @@ class Handler(object):
             self.load()
         else:
             self.allCorpus = {}
+            self.descs = {}
             self.contextClf = contextClf.ContextClf(useLoad=False)
             self.paramExtr = paramExtr.ParamExtr(useLoad=False)
             self.save()
@@ -29,12 +30,17 @@ class Handler(object):
         Save some variables used in this instance using joblib.dump
         """
         joblib.dump(self.allCorpus, ut.rp('wikiroid/allCorpus.dat'),compress=3)
+        joblib.dump(self.descs, ut.rp('wikiroid/descs.dat'),compress=3)
 
-    def saveCode(self, cat, code):
+    def saveCode(self, cat, rawCode):
         """
         Save reply code in reply directory
         """
         fp = open(ut.rp('reply/' + cat + '.py'), 'w')
+        if type(rawCode) is unicode:
+            code = rawCode.encode('utf-8')
+        else:
+            code = rawCode
         fp.write(code)
         fp.close()
 
@@ -43,6 +49,7 @@ class Handler(object):
         Load variables from dumped files
         """
         self.allCorpus = joblib.load(ut.rp('wikiroid/allCorpus.dat'))
+        self.descs = joblib.load(ut.rp('wikiroid/descs.dat'))
         self.contextClf = contextClf.ContextClf(useLoad=True)
         self.paramExtr = paramExtr.ParamExtr(useLoad=True)
 
@@ -55,13 +62,14 @@ class Handler(object):
         self.allCorpus[cat].extend(corpus)
         return True
 
-    def addCategory(self, cat, desc, quesCorpus, featDict, findCode, distMethod):
+    def addCategory(self, cat, desc, quesCorpus, reprDict, findCode, distMethod):
         """
         Add new category
         """
+        self.descs[cat] = desc
         self.saveCode(cat, findCode)
         self._addCorpus(cat, quesCorpus)
-        self.paramExtr.build(cat, quesCorpus, featDict, distMethod)
+        self.paramExtr.build(cat, quesCorpus, reprDict, distMethod)
         self.save()
         return True
 
@@ -70,6 +78,7 @@ class Handler(object):
         Build context classifier model
         """
         self.contextClf.build(self.allCorpus)
+        return True
 
     def reply(self, ques, emitFunc):
         """
@@ -80,7 +89,7 @@ class Handler(object):
         #Emit context classifier's reseult
         emitFunc('classifier', predRslt)
         cat = predRslt[0][0]
-        #Extract parameters(or features) in question
+        #Extract parameters in question
         params = self._extrParam(ques, cat)
 
         #Emit parameter Extractor's result
@@ -91,6 +100,9 @@ class Handler(object):
         getAnswer = eval(cat + '.getAnswer')
         #Make an answer and emit it
         emitFunc('reply', getAnswer(ques, params))
+
+    def getCategoryList(self):
+        return self.descs
 
     def _predContext(self, ques):
         """
@@ -104,7 +116,7 @@ class Handler(object):
         Extract parameters of the question
         """
         #return {'who' : ['테스트'], 'detail' : ['테스트']}
-        return self.paramExtr.extrFeat(cat, ques)
+        return self.paramExtr.extrParam(cat, ques)
 
 if __name__ == '__main__':
     """
@@ -135,7 +147,7 @@ if __name__ == '__main__':
                 for line in fp:
                     code.append(line)
                 fp.close()
-                test.addCategory(k, 'Desc: ' + k, defDict[k], peopleReprDict, ''.join(code), {'who':'W', 'detail':'W'})
+                test.addCategory(k, 'Desc: ' + k, defDict[k], peopleReprDict, ''.join(code), {'who':'w', 'detail':'w'})
             elif k == 'Lotto':
                 lottoTestDataRaw = joblib.load(ut.rp('paramExtr/cate-lotto.dat'))
 
@@ -150,7 +162,7 @@ if __name__ == '__main__':
                     code.append(line)
                 fp.close()
 
-                test.addCategory(k, 'Desc: ' + k, defDict[k], lottoReprDict, ''.join(code), {'when':'W'})
+                test.addCategory(k, 'Desc: ' + k, defDict[k], lottoReprDict, ''.join(code), {'when':'w'})
             elif k == 'Weather':
                 weatherTestDataRaw = joblib.load(ut.rp('paramExtr/cate-weather.dat'))
 
@@ -164,7 +176,7 @@ if __name__ == '__main__':
                 for line in fp:
                     code.append(line)
                 fp.close()
-                test.addCategory(k, 'Desc: ' + k, defDict[k], weatherReprDict, ''.join(code), {'when':'W', 'where':'W', 'what':'W', 'detail':'W'})
+                test.addCategory(k, 'Desc: ' + k, defDict[k], weatherReprDict, ''.join(code), {'when':'w', 'where':'w', 'what':'w', 'detail':'w'})
 
         print "addCategory Complete"
         test.build()
@@ -173,4 +185,6 @@ if __name__ == '__main__':
     def test_print(a,b):
         print a + " : " + str(b)
     #test.reply("내일 서울 비오나요", test_print)
-    test.reply("저번주 로또번호", test_print)
+    test.reply("한가인 프로필", test_print)
+    #test.reply("어제 로또 번호", test_print)
+    #test.reply("Test", test_print)

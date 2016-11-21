@@ -13,12 +13,8 @@ def make_words(res_dict):
 
 def getAnswer(full_text, params):
     parsed_dict = {}
-    for each in params:
-        feat = max(each['prob'].iteritems(), key=operator.itemgetter(1))[0]
-        if not parsed_dict.has_key(feat):
-            parsed_dict[feat] = []
-        parsed_dict[feat].append(each['word'])
-        print feat + ' : ' + each['word']
+    for k in params:
+        parsed_dict[k] = [x[0] for x in params[k] if x[1] > 0.3]
 
     first_date = dt.date(2007,12,8)
     first_round = 262

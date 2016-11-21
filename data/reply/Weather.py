@@ -187,11 +187,8 @@ def get_key_if_exist(key_string, dictionary):
 
 def getAnswer(question, params):
     result_dict = {}
-    for each in params:
-        feat = max(each['prob'].iteritems(), key=operator.itemgetter(1))[0]
-        if not result_dict.has_key(feat):
-            result_dict[feat] = []
-        result_dict[feat].append(each['word'])
+    for k in params:
+        result_dict[k] = [x[0] for x in params[k] if x[1] > 0.3]
 
     what = ''
     who = ''

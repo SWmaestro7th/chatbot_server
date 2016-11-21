@@ -1,6 +1,7 @@
 #!/bin/bash
 ES='http://127.0.0.1:9200'
-ESIDX='entity_search'
+ESIDX=$1
+ESTYPE=$2
 curl -XDELETE $ES/$ESIDX
 curl -XPUT $ES/$ESIDX/ -d '{
     "settings" : {
@@ -28,5 +29,13 @@ curl -XPUT $ES/$ESIDX/ -d '{
             "b" : "0.8"
             }
           }
+    }
+}'
+
+curl -XPUT $ES/$ESIDX/$ESTYPE/_mapping -d '{'\"$2\"' : {
+        "_all" : {"enabled" : false},
+        "properties" : {
+            "name" : {"type" : "text", "analyzer":"my_ngram_analyzer","index" : "analyzed", "similarity" : "BM25"}
+        }
     }
 }'

@@ -1,0 +1,1 @@
+def getAnswer(ques, params):%0A    return '한글'

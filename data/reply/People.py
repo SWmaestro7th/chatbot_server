@@ -93,11 +93,8 @@ class PeopleCrawler(object):
         print params
         print full_text
         parsed_dict = {}
-        for each in params:
-            feat = max(each['prob'].iteritems(), key=operator.itemgetter(1))[0]
-            if not parsed_dict.has_key(feat):
-                parsed_dict[feat] = []
-            parsed_dict[feat].append(each['word'])
+        for k in params:
+            parsed_dict[k] = [x[0] for x in params[k] if x[1] > 0.2]
 
         if parsed_dict.has_key('who'):
             who_str = ' '.join([x.split('\t')[0] for x in parsed_dict['who']])
