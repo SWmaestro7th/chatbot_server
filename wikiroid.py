@@ -20,7 +20,7 @@ class Handler(object):
             self.load()
         else:
             self.allCorpus = {}
-            self.descs = {}
+            self.descs = []
             self.contextClf = contextClf.ContextClf(useLoad=False)
             self.paramExtr = paramExtr.ParamExtr(useLoad=False)
             self.save()
@@ -66,7 +66,7 @@ class Handler(object):
         """
         Add new category
         """
-        self.descs[cat] = desc
+        self.descs.append({'name':cat, 'desc':desc, 'corpus':[quesCorpus[0], quesCorpus[1]]})
         self.saveCode(cat, findCode)
         self._addCorpus(cat, quesCorpus)
         self.paramExtr.build(cat, quesCorpus, reprDict, distMethod)
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     """
     This part is just Test Code
     """
-    useLoad = True
+    useLoad = False
     test = Handler(useLoad)
     if not useLoad:
         defDict = {}
