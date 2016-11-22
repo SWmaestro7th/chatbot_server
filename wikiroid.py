@@ -20,6 +20,7 @@ class Handler(object):
             self.load()
         else:
             self.allCorpus = {}
+            self.allInfo = {}
             self.descs = []
             self.contextClf = contextClf.ContextClf(useLoad=False)
             self.paramExtr = paramExtr.ParamExtr(useLoad=False)
@@ -30,6 +31,7 @@ class Handler(object):
         Save some variables used in this instance using joblib.dump
         """
         joblib.dump(self.allCorpus, ut.rp('wikiroid/allCorpus.dat'),compress=3)
+        joblib.dump(self.allInfo, ut.rp('wikiroid/allInfo.dat'),compress=3)
         joblib.dump(self.descs, ut.rp('wikiroid/descs.dat'),compress=3)
 
     def saveCode(self, cat, rawCode):
@@ -44,11 +46,19 @@ class Handler(object):
         fp.write(code.encode('utf-8'))
         fp.close()
 
+    def removeCode(self, cat):
+        """
+        Save reply code in reply directory
+        """
+        #Don't need to remove exactly
+        pass
+
     def load(self):
         """
         Load variables from dumped files
         """
         self.allCorpus = joblib.load(ut.rp('wikiroid/allCorpus.dat'))
+        self.allInfo = joblib.load(ut.rp('wikiroid/allInfo.dat'))
         self.descs = joblib.load(ut.rp('wikiroid/descs.dat'))
         self.contextClf = contextClf.ContextClf(useLoad=True)
         self.paramExtr = paramExtr.ParamExtr(useLoad=True)
@@ -62,14 +72,36 @@ class Handler(object):
         self.allCorpus[cat].extend(corpus)
         return True
 
+    def _removeCorpus(self, cat):
+        """
+        remove category's corpus in allcorpus
+        """
+        self.allCorpus.pop(cat, None)
+        return True
+
     def addCategory(self, cat, desc, quesCorpus, reprDict, findCode, distMethod):
         """
         Add new category
         """
+        self.allInfo[cat] = {'name':cat, 'desc':desc, 'corpus':quesCorpus, 'reprDict':reprDict, 'findCode':findCode, 'distMethod':distMethod}
         self.descs.append({'name':cat, 'desc':desc, 'corpus':[quesCorpus[0], quesCorpus[1]]})
         self.saveCode(cat, findCode)
         self._addCorpus(cat, quesCorpus)
         self.paramExtr.build(cat, quesCorpus, reprDict, distMethod)
+        self.save()
+        return True
+
+    def removeCategory(self, cat):
+        """
+        Remove a category
+        """
+        self._removeCorpus(cat)
+
+        for idx in range(self.descs):
+            if selfs.descs[idx]['name'] == cat:
+                del(selfs.descs[idx])
+                break
+        self.allInfo.pop(cat, None)
         self.save()
         return True
 
@@ -103,6 +135,9 @@ class Handler(object):
 
     def getCategoryList(self):
         return self.descs
+
+    def getCategoryInfo(self, name):
+        return self.allInfo[name]
 
     def _predContext(self, ques):
         """

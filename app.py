@@ -26,20 +26,26 @@ Receive query message from socketio and reply answer
 """
 @socketio.on('query')
 def handle_message(json):
-    print('receive message: ' + str(json))
-    emit('get', json)
-    try:
-        question = json['question']
-        print question
-        if type(question) is not unicode:
-            question = question.decode('utf-8')
-        print type(question)
-        print question
-        handler.reply(question, emit)
-    except Exception as e:
-        print "--------------------------------"
-        print e
-        print "--------------------------------"
+    if json.has_key('question'):
+        print('receive message: ' + str(json))
+        emit('get', json)
+        try:
+            question = json['question']
+            print question
+            if type(question) is not unicode:
+                question = question.decode('utf-8')
+            print type(question)
+            print question
+            handler.reply(question, emit)
+        except Exception as e:
+            print "--------------------------------"
+            print e
+            print "--------------------------------"
+    else:
+        name = json['name']
+        if type(name) is not unicode:
+            name= name.decode('utf-8')
+        emit('info', handler.getCategoryInfo(name))
 
 """
 Add new category in wikiroid
@@ -127,5 +133,24 @@ Return Category informations
 def handle_message():
     emit('list', handler.getCategoryList())
 
+"""
+Return Category informations
+"""
+@socketio.on('remove')
+def handle_message(json):
+    if json.has_key('name'):
+        print('receive message: ' + str(json))
+        name = json['name']
+        if type(name) is not unicode:
+            name = name.decode('utf-8')
+        print type(name)
+        print name
+        try:
+            handler.removeCategory(name)
+            emit('remove_result', 'Succeed')
+        except:
+            emit('remove_result', 'Failed')
+
+
 if __name__ =='__main__':
-    socketio.run(app, host='0.0.0.0', port=10101)
+    socketio.run(app, host='0.0.0.0', port=10102)

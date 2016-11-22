@@ -30,7 +30,7 @@ class ParamExtr(object):
         Initialize each variables used in this instance
         """
         #useAllW2V defines word2vec model whether indvW2V or allW2V
-        self.useAllW2V = True
+        self.useAllW2V = False#True
         self.THR = 0.3
         #Show progress of word2vec
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
