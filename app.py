@@ -120,5 +120,12 @@ def getCategoryList():
     """
     return str(tmp)
 
+"""
+Return Category informations
+"""
+@socketio.on('ask_list')
+def handle_message():
+    emit('list', handler.getCategoryList())
+
 if __name__ =='__main__':
     socketio.run(app, host='0.0.0.0', port=10101)
