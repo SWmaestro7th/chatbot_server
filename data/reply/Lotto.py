@@ -14,7 +14,8 @@ def make_words(res_dict):
 
 def make_random_numbers():
     nums = range(1, 46)
-    return random.shuffle(nums)[:6]
+    random.shuffle(nums)
+    return nums[:6]
 
 def getAnswer(full_text, params):
     parsed_dict = {}
@@ -96,6 +97,6 @@ def getAnswer(full_text, params):
 
 
     tmp = '\n'.join(li)
-    if tmp is not unicode:
+    if type(tmp) is not unicode:
         tmp = tmp.decode('utf-8')
     return tmp
