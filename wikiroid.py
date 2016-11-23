@@ -178,8 +178,9 @@ if __name__ == '__main__':
     """
     This part is just Test Code
     """
-    useLoad = True
+    useLoad = False
     test = Handler(useLoad)
+    print "Handler Load complete"
     if not useLoad:
         defDict = {}
         defList = joblib.load(ut.rp('contextClf/defList.dat'))
@@ -207,6 +208,13 @@ if __name__ == '__main__':
                 for each in peopleTestDataRaw:
                     for w in each['result']:
                         peopleReprDict[w].extend(each['result'][w])
+
+                while '고등학교' in peopleReprDict['who']:
+                    peopleReprDict['who'].remove('고등학교')
+                while '학교' in peopleReprDict['who']:
+                    peopleReprDict['who'].remove('학교')
+                while '어디' in peopleReprDict['detail']:
+                    peopleReprDict['detail'].remove('어디')
 
                 fp=open(ut.rp('reply/People.py'))
                 code = []
@@ -236,7 +244,6 @@ if __name__ == '__main__':
                 for each in weatherTestDataRaw:
                     for w in each['result']:
                         weatherReprDict[w].extend(each['result'][w])
-                print type(weatherReprDict['where'][0])
                 weatherReprDict['where'].remove('날씨')
 
                 fp = open(ut.rp('reply/Weather.py'))
