@@ -4,6 +4,7 @@ import contextClf
 import paramExtr
 import util as ut
 import sys
+import time
 sys.path.append(ut.rp('reply/'))
 
 """
@@ -215,13 +216,23 @@ if __name__ == '__main__':
                     peopleReprDict['who'].remove('학교')
                 while '어디' in peopleReprDict['detail']:
                     peopleReprDict['detail'].remove('어디')
+                while '이' in peopleReprDict['who']:
+                    peopleReprDict['who'].remove('이')
+                defDict[k].append('최순실이 누구인가요')
+                defDict[k].append('최순실이 몇년도 출생인가요')
+                defDict[k].append('최순실 결혼했나요???')
+                defDict[k].append('요즘 화제가 되고 있는 최순실에 대해 알려주세요')
+                defDict[k].append('비선실세 최순실에 대해 알려주세요')
 
                 fp=open(ut.rp('reply/People.py'))
                 code = []
                 for line in fp:
                     code.append(line)
                 fp.close()
+                start_time =time.time()
                 test.addCategory(k, 'Desc: ' + k, defDict[k], peopleReprDict, ''.join(code), {'who':'w', 'detail':'w'})
+                end_time =time.time()
+                print 'People AddCategory elapsed time : ' + str(end_time - start_time)
             elif k == 'Lotto':
                 lottoTestDataRaw = joblib.load(ut.rp('paramExtr/cate-lotto.dat'))
 
@@ -251,16 +262,31 @@ if __name__ == '__main__':
                 for line in fp:
                     code.append(line)
                 fp.close()
+                start_time = time.time()
                 test.addCategory(k, 'Desc: ' + k, defDict[k], weatherReprDict, ''.join(code), {'when':'w', 'where':'w', 'what':'w', 'detail':'w'})
+                test.build()
+                end_time = time.time()
+                print 'weather add category elapsed time : ' + str(end_time - start_time)
 
         print "addCategory Complete"
+        start_time = time.time()
         test.build()
+        end_time = time.time()
+        print '3 add category Build elapsed time : ' + str(end_time - start_time)
 
     print "build complete"
     def test_print(a,b):
         print a + " : " + unicode(b)
     #print test.reply("내일 서울 날씨좀요", test_print)
-    print test.reply("한가인 프로필", test_print)
+    #print test.reply("노래방", test_print)
+    #start_time = time.time()
+    #test.removeCategory('People')
+    #test.build()
+    #end_time = time.time()
+    #print 'People RemoveCategory elapsed time : ' + str(end_time - start_time)
+    #print test.reply(u"2016년 11월 11일 로또번호", test_print)
+    #print test.reply(u"최순실 프로필", test_print)
+    print test.reply(u"저저번주 로또번호", test_print)
     #print test.reply(u"서석고등학교", test_print)
     #print test.reply("어제 로또 번호", test_print)
     #print test.reply("Test", test_print)
