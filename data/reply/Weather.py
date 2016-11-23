@@ -86,12 +86,12 @@ class WeatherClass:
 
     def showWeatherInfo(self):
         st = []
-        st.append("지역 : " + str(self.region))
-        st.append("\n기온 : " + str(self.temp - 273.15))
-        st.append("\n습도 : " + str(self.humi))
-        st.append("기압 : " + str(self.pres) + " hpa")
-        st.append("풍속 : " + str(self.wind_speed) + " m/s")
-        st.append("강수 확률 : " + str(self.clouds) + " %")
+        st.append(u"지역 : " + self.region)
+        st.append(u"\n기온 : " + unicode(self.temp - 273.15))
+        st.append(u"\n습도 : " + unicode(self.humi))
+        st.append(u"기압 : " + unicode(self.pres) + u" hpa")
+        st.append(u"풍속 : " + unicode(self.wind_speed) + u" m/s")
+        st.append(u"강수 확률 : " + unicode(self.clouds) + u" %")
         return '\n'.join(st)
         # print(u"lat : " + str(self.lat))
         # print(u"lng : " + str(self.lng))
