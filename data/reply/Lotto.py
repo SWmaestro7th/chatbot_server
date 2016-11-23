@@ -6,16 +6,26 @@ from scrapy.selector import HtmlXPathSelector
 import datetime as dt
 import sys
 import operator
+import random
 
 def make_words(res_dict):
     #[u'{"bnum": 42, "gno": 510, "gdate": "2012-09-08", "nums": [12, 29, 32, 33, 39, 40]}']
     return "{0}에 추첨된 {1}회 로또 당첨번호는 {2} 이며 보너스 번호는 {3} 입니다.".format(res_dict["gdate"], res_dict["gno"], ", ".join([str(x) for x in res_dict["nums"]]), res_dict["bnum"])
+
+def make_random_numbers():
+    nums = range(1, 46)
+    return random.shuffle(nums)[:6]
 
 def getAnswer(full_text, params):
     parsed_dict = {}
     for k in params:
         parsed_dict[k] = [x[0] for x in params[k] if x[1] > 0.3]
 
+    if type(full_text) is not unicode:
+        full_text = full_text.decode('utf-8')
+
+    if u'추천' in full_text:
+        return u'저는 개인적으로 ' + ', '.join([str(x) for x in make_random_numbers()]) + u'을 추천드립니다.'
     first_date = dt.date(2007,12,8)
     first_round = 262
     today_date = dt.datetime.now().date()
@@ -59,7 +69,13 @@ def getAnswer(full_text, params):
         #pred_round.extend(tmp_re.findall(full_text))
         pred_round.extend(round_info)
     else:
-        pred_round.append(most_recent_round)
+        if u'번주' in full_text or u'번 주' in full_text:
+            cnt = full_text.count(u'저')
+            if cnt >= 1:
+                cnt -= 1
+            pred_round.append(most_recent_round - cnt)
+        else:
+            pred_round.append(most_recent_round)
 
     u = 'http://lotto.kaisyu.com/api?method=get&gno='
     li = []
@@ -67,14 +83,19 @@ def getAnswer(full_text, params):
     for r in pred_round:
         try:
             d = requests.get(u + str(r)).text
-            li.append(json.loads(d))
+            tmp = make_words(json.loads(d))
+            if type(tmp) is not unicode:
+                tmp = tmp.decode('utf-8')
+            li.append(tmp)
         except:
-            try:
-                d = requests.get(u + str(r-1)).text
-                li.append(json.loads(d))
-            except:
-                return u'잘못된 날짜가 들어있는 것 같습니다!'
-    tmp = '\n'.join([make_words(x) for x in li])
+            d = requests.get(u + str(most_recent_round)).text
+            tmp = make_words(json.loads(d))
+            if type(tmp) is not unicode:
+                tmp = tmp.decode('utf-8')
+            li.append(u'미래의 로또번호는 알수 없습니다. 대신 가장 최근의 로또번호를 알려드립니다.\n' + tmp)
+
+
+    tmp = '\n'.join(li)
     if tmp is not unicode:
         tmp = tmp.decode('utf-8')
     return tmp

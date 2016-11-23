@@ -143,6 +143,7 @@ class PeopleCrawler(object):
                 raise Exception(u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.')
             res = tot_res['itemList'][0]
         except:
+            searched = False
             for each in parsed_dict['who']:
                 who_str = each
                 u = 'http://people.search.naver.com/search.naver?sm=sbx_hty&where=nexearch&ie=utf8&query=' + who_str + '&x=0&y=0'
@@ -152,11 +153,26 @@ class PeopleCrawler(object):
                     if tot_res['total'] <= 0:
                         continue
                     res = tot_res['itemList'][0]
+                    searched = True
                     break
                 except:
                     continue
-            if tot_res['total'] <= 0:
-                return u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
+            if not searched:
+                for idx in range(0, len(parsed_dict['who']), 2):
+                    who_str = parsed_dict['who'][idx] + (parsed_dict['who'][idx+1] if idx+1 < len(parsed_dict['who']) else u'')
+                    u = 'http://people.search.naver.com/search.naver?sm=sbx_hty&where=nexearch&ie=utf8&query=' + who_str + '&x=0&y=0'
+                    d = requests.get(u).text
+                    try:
+                        tot_res = json.loads(d.split('"result":')[1].split(' } } ,')[0])
+                        if tot_res['total'] <= 0:
+                            continue
+                        res = tot_res['itemList'][0]
+                        searched = True
+                        break
+                    except:
+                        continue
+                if not searched:
+                    return u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
 
         if any([x.decode('utf-8') in detail_str for x in ['프로필', '정보']]):
             tmp = self.make_all_sen(res)
