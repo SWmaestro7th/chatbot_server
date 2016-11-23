@@ -97,9 +97,9 @@ class Handler(object):
         """
         self._removeCorpus(cat)
 
-        for idx in range(self.descs):
-            if selfs.descs[idx]['name'] == cat:
-                del(selfs.descs[idx])
+        for idx in range(len(self.descs)):
+            if self.descs[idx]['name'] == cat:
+                del(self.descs[idx])
                 break
         self.allInfo.pop(cat, None)
         self.save()
