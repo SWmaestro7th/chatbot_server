@@ -30,14 +30,18 @@ class ParamExtr(object):
         Initialize each variables used in this instance
         """
         #useAllW2V defines word2vec model whether indvW2V or allW2V
-        self.useAllW2V = False#True
-        self.THR = 0.3
+        self.useAllW2V = True
+        self.THR = 0.6
+        self.W2VCalcMethod = 'max' # 'avg'
         #Show progress of word2vec
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
         if useLoad:
             self.load()
         else:
-            self.allW2VM = None
+            try:
+                self.allW2VM = joblib.load(ut.rp("paramExtr/allW2V.model"))
+            except:
+                self.allW2VM = None
             self.indvW2VM = {}
             self.reprDict = {}
             self.distMethods = {}
@@ -164,7 +168,11 @@ class ParamExtr(object):
                     if replRepr in model.vocab:
                         val = model.similarity(replRepr, replWord)
                         l.append(val)
-                d = (word, sum(l) / len(l))
+                if self.W2VCalcMethod == 'max':
+                    d = (word, max(l))
+                if self.W2VCalcMethod == 'avg':
+                    d = (word, sum(l) / len(l))
+                print '{} : {}'.format(d[0].encode('utf-8'),d[1])
                 if d[1] > self.THR:
                     res.append(d)
         return res
@@ -206,6 +214,7 @@ class ParamExtr(object):
                 model = self.indvW2VM[cat]
         res = {}
         for k in self.distMethods[cat]:
+            print k + ' Feature Exctracting..'
             if self.distMethods[cat][k] == 'w':
                 res[k] = self._extrParamW2V(model, self.reprDict[cat][k], ques)
             if self.distMethods[cat][k] == 'e':
