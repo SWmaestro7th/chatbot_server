@@ -9,68 +9,101 @@ import operator
 
 class PeopleCrawler(object):
     def make_intro_sen(self, res, def_str='이름 정보가 없습니다.\n'):
-        return "이름: {0}\n".format(res['m_name'].encode('utf-8'))
+        try:
+            return "이름: {0}\n".format(res['m_name'].encode('utf-8'))
+        except:
+            return def_str
 
     def make_birth_sen(self, res, def_str='생년월일 정보가 없습니다.\n'):
-        return "생년월일: {0}년 {1}월 {2}일\n".format(res['birth_year'].encode('utf-8'), res['birth_mm'].encode('utf-8'), res['birth_dd'].encode('utf-8'))
+        try:
+            return "생년월일: {0}년 {1}월 {2}일\n".format(res['birth_year'].encode('utf-8'), res['birth_mm'].encode('utf-8'), res['birth_dd'].encode('utf-8'))
+        except:
+            return def_str
 
     def make_birth_place_sen(self, res, def_str='출생지 정보가 없습니다.\n'):
-        return "출생지: {0}\n".format(res['birth_place'].encode('utf-8'))
+        try:
+            return "출생지: {0}\n".format(res['birth_place'].encode('utf-8'))
+        except:
+            return def_str
 
     def make_career_sen(self, res, def_str='경력사항 정보가 없습니다.\n'):
-        if len(res['career_info']) == 0:
-            return ''
-        career_list = ['경력사항']
-        for each in res['career_info']:
-            career_list.append('  {0}~{1}\t{2}'.format(each['start_date'].encode('utf-8'), each['end_date'].encode('utf-8'), each['contents'].encode('utf-8')))
-        return '\n'.join(career_list)
+        try:
+            if len(res['career_info']) == 0:
+                return ''
+            career_list = ['경력사항']
+            for each in res['career_info']:
+                career_list.append('  {0}~{1}\t{2}'.format(each['start_date'].encode('utf-8'), each['end_date'].encode('utf-8'), each['contents'].encode('utf-8')))
+            return '\n'.join(career_list)
+        except:
+            return def_str
 
     def make_debuts_sen(self, res, def_str='데뷔 정보가 없습니다.\n'):
-        if len(res['debuts_info']) == 0: return ''
-        debuts_list = ['데뷔사항']
-        for each in res['debuts_info']:
-            debuts_list.append('  {0}년 {1}'.format(each['debuts_year'].encode('utf-8'), each['debuts_work'].encode('utf-8')))
-        return '\n'.join(debuts_list)
+        try:
+            if len(res['debuts_info']) == 0: return ''
+            debuts_list = ['데뷔사항']
+            for each in res['debuts_info']:
+                debuts_list.append('  {0}년 {1}'.format(each['debuts_year'].encode('utf-8'), each['debuts_work'].encode('utf-8')))
+            return '\n'.join(debuts_list)
+        except:
+            return def_str
 
     def make_job_sen(self, res, def_str='직업 정보가 없습니다.\n'):
-        if len(res['job_info']) == 0:
-            return ''
-        job_list = ['직업정보']
-        for each in res['job_info']:
-            job_list.append('  {0}'.format(each['job_name'].encode('utf-8')))
-        return '\n'.join(job_list)
+        try:
+            if len(res['job_info']) == 0:
+                return ''
+            job_list = ['직업정보']
+            for each in res['job_info']:
+                job_list.append('  {0}'.format(each['job_name'].encode('utf-8')))
+            return '\n'.join(job_list)
+        except:
+            return def_str
 
     def make_management_sen(self, res, def_str='소속사 정보가 없습니다.\n'):
-        if len(res['management_info']) == 0:
-            return ''
-        management_list = ['소속사정보']
-        for each in res['management_info']:
-            management_list.append('  {0}'.format(each['management_list'].encode('utf-8')))
-        return '\n'.join(management_list)
+        try:
+            if len(res['management_info']) == 0:
+                return ''
+            management_list = ['소속사정보']
+            for each in res['management_info']:
+                management_list.append('  {0}'.format(each['management_list'].encode('utf-8')))
+            return '\n'.join(management_list)
+        except:
+            return def_str
 
     def make_prize_sen(self, res, def_str='수상경력 정보가 없습니다.\n'):
-        if len(res['prize_info']) == 0:
-            return ''
-        prize_list = ['수상경력 정보']
-        for each in res['prize_info']:
-            prize_list.append('  {0}\t{1}'.format(each['prize_year'].encode('utf-8'), each['prize_contents'].encode('utf-8')))
-        return '\n'.join(prize_list)
+        try:
+            if len(res['prize_info']) == 0:
+                return ''
+            prize_list = ['수상경력 정보']
+            for each in res['prize_info']:
+                prize_list.append('  {0}\t{1}'.format(each['prize_year'].encode('utf-8'), each['prize_contents'].encode('utf-8')))
+            return '\n'.join(prize_list)
+        except:
+            return def_str
 
     def make_school_sen(self, res, def_str='학력 정보가 없습니다.\n'):
-        if len(res['school']) == 0:
-            return ''
-        prize_list = ['학력 정보']
-        for each in res['school']:
-            enter_year = int(each['enter_year']) or ''
-            gradu_year = int(each['gradu_year']) or ''
-            prize_list.append('  {0}~{1}\t{2} {3}'.format(enter_year, gradu_year, each['school_name'].encode('utf-8'), each['major'].encode('utf-8')))
-        return '\n'.join(prize_list)
+        try:
+            if len(res['school']) == 0:
+                return ''
+            prize_list = ['학력 정보']
+            for each in res['school']:
+                enter_year = int(each['enter_year']) or ''
+                gradu_year = int(each['gradu_year']) or ''
+                prize_list.append('  {0}~{1}\t{2} {3}'.format(enter_year, gradu_year, each['school_name'].encode('utf-8'), each['major'].encode('utf-8')))
+            return '\n'.join(prize_list)
+        except:
+            return def_str
 
     def make_height_sen(self, res, def_str='키 정보가 없습니다.\n'):
-        return "신장: {0}\n".format(res['height'].encode('utf-8'))
+        try:
+            return "신장: {0}\n".format(res['height'].encode('utf-8'))
+        except:
+            return def_str
 
     def make_weight_sen(self, res, def_str='체중 정보가 없습니다.\n'):
-        return "체중: {0}\n".format(res['weight'].encode('utf-8'))
+        try:
+            return "체중: {0}\n".format(res['weight'].encode('utf-8'))
+        except:
+            return def_str
 
     def make_all_sen(self, res):
         all_str = []
@@ -95,11 +128,11 @@ class PeopleCrawler(object):
             parsed_dict[k] = [x[0] for x in params[k] if x[1] > 0.2]
 
         if parsed_dict.has_key('who'):
-            who_str = ' '.join([x.split('\t')[0] for x in parsed_dict['who']])
+            who_str = ' '.join(parsed_dict['who'])
         else:
             who_str = ''
         if parsed_dict.has_key('detail'):
-            detail_str = ' '.join([x.split('\t')[0] for x in parsed_dict['detail']])
+            detail_str = ''.join(parsed_dict['detail'])
         else:
             detail_str = ''
         u = 'http://people.search.naver.com/search.naver?sm=sbx_hty&where=nexearch&ie=utf8&query=' + who_str + '&x=0&y=0'
@@ -107,10 +140,23 @@ class PeopleCrawler(object):
         try:
             tot_res = json.loads(d.split('"result":')[1].split(' } } ,')[0])
             if tot_res['total'] <= 0:
-                return u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
+                raise Exception(u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.')
             res = tot_res['itemList'][0]
         except:
-            return u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
+            for each in parsed_dict['who']:
+                who_str = each
+                u = 'http://people.search.naver.com/search.naver?sm=sbx_hty&where=nexearch&ie=utf8&query=' + who_str + '&x=0&y=0'
+                d = requests.get(u).text
+                try:
+                    tot_res = json.loads(d.split('"result":')[1].split(' } } ,')[0])
+                    if tot_res['total'] <= 0:
+                        continue
+                    res = tot_res['itemList'][0]
+                    break
+                except:
+                    continue
+            if tot_res['total'] <= 0:
+                return u'해당하는 인물을 찾지 못했습니다. 좀 더 정확하게 말씀해주세요.'
 
         if any([x.decode('utf-8') in detail_str for x in ['프로필', '정보']]):
             tmp = self.make_all_sen(res)
