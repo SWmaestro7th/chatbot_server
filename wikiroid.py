@@ -83,6 +83,23 @@ class Handler(object):
         """
         Add new category
         """
+	if type(cat) is not unicode:
+	    cat = name.decode('utf-8')
+	if type(desc) is not unicode:
+	    desc = desc.decode('utf-8')
+	for idx in range(len(quesCorpus)):
+	    if type(quesCorpus[idx]) is not unicode:
+		quesCorpus[idx] = quesCorpus[idx].decode('utf-8')
+	for k in reprDict.keys():
+	    for idx in range(len(reprDict[k])):
+		if type(reprDict[k][idx]) is not unicode:
+		    reprDict[k][idx] = reprDict[k][idx].decode('utf-8')
+	if type(findCode) is not unicode:
+	    findCode = findCode.decode('utf-8')
+	for k in distMethod.keys():
+	    if type(distMethod[k]) is not unicode:
+		distMethod[k] = distMethod[k].decode('utf-8')
+
         self.allInfo[cat] = {'name':cat, 'desc':desc, 'corpus':quesCorpus, 'reprDict':reprDict, 'findCode':findCode, 'distMethod':distMethod}
         self.descs.append({'name':cat, 'desc':desc, 'corpus':[quesCorpus[0], quesCorpus[1]]})
         self.saveCode(cat, findCode)
@@ -95,6 +112,8 @@ class Handler(object):
         """
         Remove a category
         """
+        if type(cat) is not unicode:
+            cat = cat.decode('utf-8')
         self._removeCorpus(cat)
 
         for idx in range(len(self.descs)):
@@ -116,6 +135,8 @@ class Handler(object):
         """
         Reply to the question
         """
+        if type(ques) is not unicode:
+            ques = ques.decode('utf-8')
         #Classify the category of the question
         predRslt = self._predContext(ques)
         #Emit context classifier's reseult
@@ -130,8 +151,8 @@ class Handler(object):
         exec('import ' + cat)
         exec('reload(' + cat + ')')
         getAnswer = eval(cat + '.getAnswer')
-        #Make an answer and emit it
-        emitFunc('reply', getAnswer(ques, params))
+        #Make an answer return it
+        return getAnswer(ques, params)
 
     def getCategoryList(self):
         return self.descs
@@ -157,7 +178,7 @@ if __name__ == '__main__':
     """
     This part is just Test Code
     """
-    useLoad = False
+    useLoad = True
     test = Handler(useLoad)
     if not useLoad:
         defDict = {}
@@ -215,6 +236,8 @@ if __name__ == '__main__':
                 for each in weatherTestDataRaw:
                     for w in each['result']:
                         weatherReprDict[w].extend(each['result'][w])
+                print type(weatherReprDict['where'][0])
+                weatherReprDict['where'].remove('날씨')
 
                 fp = open(ut.rp('reply/Weather.py'))
                 code = []
@@ -229,7 +252,8 @@ if __name__ == '__main__':
     print "build complete"
     def test_print(a,b):
         print a + " : " + unicode(b)
-    #test.reply("내일 서울 비오나요", test_print)
-    test.reply(u"서석고등학교", test_print)
-    #test.reply("어제 로또 번호", test_print)
-    #test.reply("Test", test_print)
+    #print test.reply("내일 서울 날씨좀요", test_print)
+    print test.reply("한가인 프로필", test_print)
+    #print test.reply(u"서석고등학교", test_print)
+    #print test.reply("어제 로또 번호", test_print)
+    #print test.reply("Test", test_print)

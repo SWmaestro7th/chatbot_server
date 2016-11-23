@@ -47,11 +47,8 @@ def handle_message(json):
 	    emit('get', json)
             question = json['question']
             print question
-            if type(question) is not unicode:
-                question = question.decode('utf-8')
-            print type(question)
-            print question
-            handler.reply(question, emit)
+            answer = handler.reply(question, emit)
+            emit('reply', answer.replace(u'\n', u'<br/>'))
 	else:
 	    name = json['name']
 	    if type(name) is not unicode:
@@ -70,50 +67,11 @@ def handle_message(json):
 	emit('get', json)
 
 	name = json['name']
-	if type(name) is not unicode:
-	    name = name.decode('utf-8')
-	print type(name)
-	print name
-	#raw_input(1)
-
 	desc = json['desc']
-	if type(desc) is not unicode:
-	    name = name.decode('utf-8')
-	print type(desc)
-	print desc
-	#raw_input(2)
-
 	corpus = json['corpus']
-	for idx in range(len(corpus)):
-	    if type(corpus[idx]) is not unicode:
-		corpus[idx] = corpus[idx].decode('utf-8')
-	print type(corpus)
-	print str(corpus)
-	#raw_input(3)
-
 	reprDict = json['reprDict']
-	for k in reprDict.keys():
-	    for idx in range(len(reprDict[k])):
-		if type(reprDict[k][idx]) is not unicode:
-		    reprDict[k][idx] = reprDict[k][idx].decode('utf-8')
-	print type(reprDict)
-	print str(reprDict)
-	#raw_input(4)
-
 	findFunc = json['findFunc']
-	if type(findFunc) is not unicode:
-	    findFunc = findFunc.decode('utf-8')
-	print type(findFunc)
-	print findFunc
-	#raw_input(5)
-
 	distMethod = json['distMethod']
-	for k in distMethod.keys():
-	    if type(distMethod[k]) is not unicode:
-		distMethod[k] = distMethod[k].decode('utf-8')
-	print type(distMethod)
-	print str(distMethod)
-	#raw_input(6)
 
 	if handler.addCategory(name, desc, corpus, reprDict, findFunc, distMethod) and handler.build():
 	    emit('new_result', 'Succeed')
@@ -166,12 +124,10 @@ def handle_message(json):
         if json.has_key('name'):
             print('receive message: ' + str(json))
             name = json['name']
-            if type(name) is not unicode:
-                name = name.decode('utf-8')
-            print type(name)
-            print name
-            handler.removeCategory(name)
-            emit('remove_result', 'Succeed')
+            if handler.removeCategory(name) and handler.build():
+                emit('remove_result', 'Succeed')
+            else:
+                emit('remove_result', 'Failed')
         else:
             emit('remove_result', 'Failed')
     except:
@@ -179,4 +135,4 @@ def handle_message(json):
         emit('remove_result', 'Failed')
 
 if __name__ =='__main__':
-    socketio.run(app, host='0.0.0.0', port=10102)
+    socketio.run(app, host='0.0.0.0', port=10101)
