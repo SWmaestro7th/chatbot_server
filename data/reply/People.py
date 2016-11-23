@@ -116,7 +116,7 @@ class PeopleCrawler(object):
             tmp = self.make_all_sen(res)
             if type(tmp) is not unicode:
                 tmp = tmp.decode('utf-8')
-            return tmp.decode('utf-8')
+            return tmp
 
         res_list = []
         if any([x.decode('utf-8') in detail_str for x in ['생일', '생년', '생년월일', '출생', '몇 년 생', '몇년생']]):
@@ -156,10 +156,10 @@ class PeopleCrawler(object):
             tmp = self.make_all_sen(res)
             if type(tmp) is not unicode:
                 tmp = tmp.decode('utf-8')
-            return tmp
-        tmp = '\n'.join(res_list)
-        if type(tmp) is not unicode:
-            tmp = tmp.decode('utf-8')
+        else:
+            tmp = '\n'.join(res_list)
+            if type(tmp) is not unicode:
+                tmp = tmp.decode('utf-8')
         return tmp
 
 def getAnswer(full_text, params):

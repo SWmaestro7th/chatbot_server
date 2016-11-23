@@ -87,8 +87,8 @@ class WeatherClass:
     def showWeatherInfo(self):
         st = []
         st.append("지역 : " + str(self.region))
-        st.append("기온 : " + str(self.temp - 273.15))
-        st.append("습도 : " + str(self.humi))
+        st.append("\n기온 : " + str(self.temp - 273.15))
+        st.append("\n습도 : " + str(self.humi))
         st.append("기압 : " + str(self.pres) + " hpa")
         st.append("풍속 : " + str(self.wind_speed) + " m/s")
         st.append("강수 확률 : " + str(self.clouds) + " %")
@@ -213,17 +213,20 @@ def getAnswer(question, params):
         print '현재 날씨'
         wc = WeatherClass()
         wc.getWeatherInfo(where)
+        print type(where)
+        print type(wc.showWeatherInfo())
         tmp = wc.showWeatherInfo()
         if type(tmp) is not unicode:
             tmp = tmp.decode('utf-8')
-        return tmp
+        return where + u' 현재 날씨입니다.\n' + tmp
     else:
         print '날씨 예보'
         wf = ForecastWeather()
+        print type(where)
         tmp = wf.getWeatherInfo(where, get_date_diff(question))
         if type(tmp) is not unicode:
             tmp = tmp.decode('utf-8')
-        return tmp
+        return where + u' 날씨 예보입니다.\n' + tmp
 
 
 def is_now(when):
@@ -232,6 +235,7 @@ def is_now(when):
     except:
         print 'when : ' + when
         en = mtranslate.translate(when.encode('utf-8'), 'en', 'kr')
+    print en
     cal = parsedatetime.Calendar()
     cal_str = cal.parse(en)
 
@@ -247,7 +251,11 @@ def is_now(when):
 
 
 def get_date_diff(when):
-    en = mtranslate.translate(when, 'en', 'kr')
+    try:
+        en = mtranslate.translate(when, 'en', 'kr')
+    except:
+        print 'when : ' + when
+        en = mtranslate.translate(when.encode('utf-8'), 'en', 'kr')
     cal = parsedatetime.Calendar()
     cal_str = cal.parse(en)
 
