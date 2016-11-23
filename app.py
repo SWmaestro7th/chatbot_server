@@ -16,7 +16,11 @@ def printException():
     filename = f.f_code.co_filename
     linecache.checkcache(filename)
     line = linecache.getline(filename, lineno, f.f_globals)
-    return 'EXCEPTION IN ({}, LINE {} "{}"): {} {}'.format(filename, lineno, line.strip(), exc_type, exc_obj)
+    errorMsg = 'EXCEPTION IN ({}, LINE {} "{}"): {} {}'.format(filename, lineno, line.strip(), exc_type, exc_obj)
+    print "----------------------------"
+    print errorMsg
+    print "----------------------------"
+    return errorMsg
 
 """
 Initialize Flask, socketio, and wikiroid instance
