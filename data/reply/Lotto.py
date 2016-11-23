@@ -30,9 +30,9 @@ def getAnswer(full_text, params):
         when_str = ' '.join(parsed_dict['when'])
     else:
         when_str = ''
-    round_re = re.compile('[0-9]{3}')
-    date_re = re.compile('[0-9]{1,2} 월 [0-9]{1,2} (일)?')
-    all_date_re = re.compile('[0-9]{4} 년 [0-9]{1,2} 월 [0-9]{1,2} (일)?')
+    round_re = re.compile(u'[0-9]{3}')
+    date_re = re.compile(u'[0-9]{1,2} 월 [0-9]{1,2}')
+    all_date_re = re.compile(u'[0-9]{4} 년 [0-9]{1,2} 월 [0-9]{1,2}')
     #round_re = re.compile('d{3}')
     #date_re = re.compile('d{1,2} 월 d{1,2} (일)?')
     #all_date_re = re.compile('d{4} 년 d{1,2} 월 d{1,2} (일)?')
