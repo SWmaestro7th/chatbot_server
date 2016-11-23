@@ -72,6 +72,16 @@ def handle_message(json):
 	reprDict = json['reprDict']
 	findFunc = json['findFunc']
 	distMethod = json['distMethod']
+        reprDict.pop('view_who', None)
+        reprDict.pop('view_when', None)
+        reprDict.pop('view_where', None)
+        reprDict.pop('view_what', None)
+        reprDict.pop('view_details', None)
+        distMethod.pop('view_who', None)
+        distMethod.pop('view_when', None)
+        distMethod.pop('view_where', None)
+        distMethod.pop('view_what', None)
+        distMethod.pop('view_details', None)
 
 	if handler.addCategory(name, desc, corpus, reprDict, findFunc, distMethod) and handler.build():
 	    emit('new_result', 'Succeed')
