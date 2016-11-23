@@ -103,14 +103,14 @@ class ParamExtr(object):
         if not self.reprDict.has_key(cat):
             self.reprDict[cat] = {}
         self.reprDict[cat][feat] = reprList
-        lowerCat = cat.lower()
-        os.system(ut.rp('elastic/init_entity_search.sh ') + lowerCat + ' ' + feat)
+        lowerCat = cat.lower() + feat
+        os.system(ut.rp('elastic/init_entity_search.sh ') + lowerCat + ' ' + lowerCat)
         actionList = []
         uniqReprList = list(set(reprList))
         for each in uniqReprList:
             action = {
                 "_index":lowerCat,
-                "_type":feat,
+                "_type":lowerCat,
                 "_source":{"name":each}
             }
             actionList.append(action)
@@ -181,11 +181,11 @@ class ParamExtr(object):
         """
         extract parameters using elasticsearch model
         """
-        lowerCat = cat.lower()
+        lowerCat = cat.lower() + feat
         query = ques
         d = es_client.search(
             index=lowerCat,
-            doc_type=feat,
+            doc_type=lowerCat,
             size=10,
             body={
                 'query':
