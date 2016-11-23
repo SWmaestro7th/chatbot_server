@@ -126,6 +126,12 @@ class PeopleCrawler(object):
         parsed_dict = {}
         for k in params:
             parsed_dict[k] = [x[0] for x in params[k] if x[1] > 0.2]
+        popular_peoples = [u'최태민', u'우병우', u'최순실', u'정유라', u'김무성', u'문재인', u'안철수', u'이재명', u'최순득']
+        if type(full_text) is not unicode:
+            full_text = full_text.decode('utf-8')
+        for each in popular_peoples:
+            if each in full_text and each not in parsed_dict['who']:
+                parsed_dict['who'].insert(0, each)
 
         if parsed_dict.has_key('who'):
             who_str = ' '.join(parsed_dict['who'])

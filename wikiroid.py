@@ -285,54 +285,8 @@ if __name__ == '__main__':
     #end_time = time.time()
     #print 'People RemoveCategory elapsed time : ' + str(end_time - start_time)
     #print test.reply(u"2016년 11월 11일 로또번호", test_print)
-    #print test.reply(u"최순실 프로필", test_print)
-    print test.reply(u"저저번주 로또번호", test_print)
-    test.removeCategory('People')
-
-    defDict = {}
-    defList = joblib.load(ut.rp('contextClf/defList.dat'))
-    for x in defList:
-        if x['cat'] is not unicode:
-            cat = x['cat'].decode('utf-8')
-        else:
-            cat = x['cat']
-
-        if not defDict.has_key(cat):
-            defDict[cat] = []
-
-        if x['ques'] is not unicode:
-            ques = x['ques'].decode('utf-8')
-        else:
-            ques = x['ques']
-        defDict[cat].append(ques)
-    k = 'People'
-
-    peopleTestDataRaw = joblib.load(ut.rp('paramExtr/cate-people.dat'))
-    peopleReprDict = {y : [] for y in list(set(sum([x['result'].keys() for x in peopleTestDataRaw], [])))}
-    for each in peopleTestDataRaw:
-        for w in each['result']:
-            peopleReprDict[w].extend(each['result'][w])
-
-    while '고등학교' in peopleReprDict['who']:
-        peopleReprDict['who'].remove('고등학교')
-    while '학교' in peopleReprDict['who']:
-        peopleReprDict['who'].remove('학교')
-    while '어디' in peopleReprDict['detail']:
-        peopleReprDict['detail'].remove('어디')
-    while '이' in peopleReprDict['who']:
-        peopleReprDict['who'].remove('이')
-    defDict[k].append('최순실이 누구인가요')
-    defDict[k].append('최순실이 몇년도 출생인가요')
-    defDict[k].append('최순실 결혼했나요???')
-    defDict[k].append('요즘 화제가 되고 있는 최순실에 대해 알려주세요')
-    defDict[k].append('비선실세 최순실에 대해 알려주세요')
-
-    fp=open(ut.rp('reply/People.py'))
-    code = []
-    for line in fp:
-        code.append(line)
-    fp.close()
-    test.addCategory(k, 'Desc: ' + k, defDict[k], peopleReprDict, ''.join(code), {'who':'w', 'detail':'w'})
+    print test.reply(u"우병우 프로필", test_print)
+    #print test.reply(u"저저번주 로또번호", test_print)
     #print test.reply(u"서석고등학교", test_print)
     #print test.reply("어제 로또 번호", test_print)
     #print test.reply("Test", test_print)
