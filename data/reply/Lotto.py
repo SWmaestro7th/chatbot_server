@@ -22,40 +22,42 @@ def getAnswer(full_text, params):
     most_recent_lotto_date = today_date - dt.timedelta((today_date-first_date).days % 7)
     most_recent_round = first_round + (today_date-first_date).days / 7
     def get_round_from_date(inp_date):
-        if (today_date-inp_date).days % 7 == 0:
-            return first_round + (today_date-first_date).days / 7
+        if (inp_date - first_date).days % 7 == 0:
+            return first_round + (inp_date - first_date).days / 7
 
     pred_round = []
     if parsed_dict.has_key('when'):
         when_str = ' '.join(parsed_dict['when'])
+        if type(when_str) is not unicode:
+            when_str = when_str.decode('utf-8')
     else:
-        when_str = ''
+        when_str = u''
+    all_date_re = re.compile(u'[0-9]{4} 년 [0-9]{1,2} 월 [0-9]{1,2} 일')
+    date_re = re.compile(u'[0-9]{1,2} 월 [0-9]{1,2} 일')
     round_re = re.compile(u'[0-9]{3}')
-    date_re = re.compile(u'[0-9]{1,2} 월 [0-9]{1,2}')
-    all_date_re = re.compile(u'[0-9]{4} 년 [0-9]{1,2} 월 [0-9]{1,2}')
+
+    all_date_info = all_date_re.findall(when_str)
+    date_info = date_re.findall(when_str)
+    round_info = round_re.findall(when_str)
     #round_re = re.compile('d{3}')
     #date_re = re.compile('d{1,2} 월 d{1,2} (일)?')
     #all_date_re = re.compile('d{4} 년 d{1,2} 월 d{1,2} (일)?')
-    round_info = round_re.findall(when_str)
-    all_date_info = all_date_re.findall(when_str)
-    date_info = date_re.findall(when_str)
-
-    if len(round_info) > 0:
-        #tmp_re = re.compile('[0-9]{3}')
-        #pred_round.extend(tmp_re.findall(full_text))
-        pred_round.extend(round_info)
-    elif len(all_date_info) > 0:
+    if len(all_date_info) > 0:
         #tmp_re = re.compile('[0-9]{4} 년 [0-9]{1,2} 월 [0-9]{1,2} (일)?')
         #tmp = tmp_re.findall(full_text).split(' ')
-        tmp = all_date_info.split(' ')
-        d = dt.date(int(tmp[0]),int(tmp[2]),int(tmp[4]))
-        pred_round.append(get_round_from_date(d))
+        tmp = [x.split(' ') for x in all_date_info]
+        d = [dt.date(int(x[0]),int(x[2]),int(x[4])) for x in tmp]
+        pred_round.extend([get_round_from_date(x) for x in d])
     elif len(date_info) > 0:
         #tmp_re = re.compile('[0-9]{1,2} 월 [0-9]{1,2} (일)?')
         #tmp = tmp_re.findall(full_text).split(' ')
-        tmp = date_info.split(' ')
-        d = dt.date(today_date.year(),int(tmp[0]),int(tmp[2]))
-        pred_round.append(get_round_from_date(d))
+        tmp = [x.split(' ') for x in date_info]
+        d = [dt.date(today_date.year(),int(x[2]),int(x[4])) for x in tmp]
+        pred_round.extend([get_round_from_date(x) for x in d])
+    elif len(round_info) > 0:
+        #tmp_re = re.compile('[0-9]{3}')
+        #pred_round.extend(tmp_re.findall(full_text))
+        pred_round.extend(round_info)
     else:
         pred_round.append(most_recent_round)
 
@@ -71,7 +73,7 @@ def getAnswer(full_text, params):
                 d = requests.get(u + str(r-1)).text
                 li.append(json.loads(d))
             except:
-                return u'좀 더 정확히 입력해주세요'
+                return u'잘못된 날짜가 들어있는 것 같습니다!'
     tmp = '\n'.join([make_words(x) for x in li])
     if tmp is not unicode:
         tmp = tmp.decode('utf-8')
