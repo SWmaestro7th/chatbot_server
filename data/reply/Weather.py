@@ -213,6 +213,8 @@ def getAnswer(question, params):
         print '현재 날씨'
         wc = WeatherClass()
         wc.getWeatherInfo(where)
+        if type(where) is not unicode:
+            where = where.decode('utf-8')
         print type(where)
         print type(wc.showWeatherInfo())
         tmp = wc.showWeatherInfo()
@@ -224,6 +226,8 @@ def getAnswer(question, params):
         wf = ForecastWeather()
         print type(where)
         tmp = wf.getWeatherInfo(where, get_date_diff(question))
+        if type(where) is not unicode:
+            where = where.decode('utf-8')
         if type(tmp) is not unicode:
             tmp = tmp.decode('utf-8')
         return where + u' 날씨 예보입니다.\n' + tmp
